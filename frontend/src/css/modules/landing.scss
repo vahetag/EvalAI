@@ -578,23 +578,27 @@ a.view-more {
 
 .evalai-sponsor-logo {
     max-width: 100%;
-    height: 300px;
+    height: auto; 
     text-align: center;
+    margin-bottom: 20px; /* Add spacing between logos */
+
     img {
-        height: 55%;
-        max-width: 100%;
-        width: auto;
+        max-width: 100%; 
+        height: auto; 
         transition: all 0.2s ease-in-out;
         display: block;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: auto;
-        margin-bottom: auto;
+        margin: 0 auto; 
     }
+
+    &.opencv-logo { 
+        img {
+            max-height: 150px; 
+        }
+    }
+
     &:hover {
         img {
             -webkit-filter: grayscale(100%);
-            /* Safari 6.0 - 9.0 */
             filter: grayscale(100%);
         }
     }
