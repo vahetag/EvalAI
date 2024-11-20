@@ -101,7 +101,7 @@
                 </div>
                 <div class="row">
                     <div class="col s12 m2 l2">
-                        <img src="/dist/images/features/protocols.png" alt="" width="100%">
+                        <img src="/dist/images/features/about-timeline.jpeg" alt="" width="100%">
                     </div>
                     <div class="col s12 m4 l4">
                         <h5 class="w-300">Timeline</h5>
@@ -120,15 +120,15 @@
 </p>
                     </div>
                     <div class="col s12 m2 l2">
-                        <img src="/dist/images/features/remote.png" alt="" width="100%">
+                        <img src="/dist/images/features/about-prizes.jpeg" alt="" width="100%">
                     </div>
                     <div class="col s12 m4 l4">
-                        <h5 class="w-300">Remote evaluation</h5>
-                        <p class="w-300 fs-16">Certain large-scale challenges need special compute capabilities for
-                            evaluation. If the challenge needs extra computational power, challenge organizers can
-                            easily add their own cluster of worker nodes to process participant submissions while we
-                            take care of hosting the challenge, handling user submissions, and maintaining the
-                            leaderboard.</p>
+                        <h5 class="w-300">Prizes</h5>
+                        <p class="w-300 fs-16">1st (Grand Prize Winner): $20,000</p>
+                        <p class="w-300 fs-16">2nd (Grand Prize Runner-Up): $15,000</p>
+                        <p class="w-300 fs-16">3rd Place: $10,000</p>
+                        <p class="w-300 fs-16">4th & 5th Place: $5,000</p>
+                        <p class="w-300 fs-16">6th to 10th Place: $1,000</p>
                     </div>
                 </div>
                 <div class="row">
@@ -136,42 +136,41 @@
                         <img src="/dist/images/features/docker.png" alt="" width="100%">
                     </div>
                     <div class="col s12 m4 l4">
-                        <h5 class="w-300">Evaluation inside RL environments</h5>
-                        <p class="w-300 fs-16">EvalAI lets participants submit code for their agent in the form of
-                            docker images which are evaluated against test environments on the evaluation server. During
-                            evaluation, the worker fetches the image, test environment, and the model snapshot and spins
-                            up a new container to perform evaluation.</p>
+                        <h5 class="w-300">Rules</h5>
+                        <p class="w-300 fs-16">Team Size: Up to 4 members.</p>
+                        <p class="w-300 fs-16">Participant Restrictions: Countries sanctioned by the United States (TBD). </p>
+                        <p class="w-300 fs-16">Dataset: Use images captured by RGB cameras under all lighting conditions. Provided by Intrinsic.
                     </div>
                     <div class="col s12 m2 l2">
                         <img src="/dist/images/features/cli.png" alt="" width="100%">
                     </div>
                     <div class="col s12 m4 l4">
-                        <h5 class="w-300">CLI support</h5>
-                        <p class="w-300 fs-16">EvalAI-CLI is designed to extend the functionality of the EvalAI web
-                            application to your command line to make the platform more accessible and terminal-friendly.
-                        </p>
+                        <h5 class="w-300">Evaluation Criteria</h5>
+                        <p class="w-300 fs-16">Accuracy: Measure the pose estimation accuracy using Maximum Vertex Distance (MVD), precision, and recall.</p>
+                        <p class="w-300 fs-16">Efficiency: Assess the computational efficiency and real-time capabilities of the algorithms.</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col s12 m2 l2">
-                        <img src="/dist/images/features/portability.png" alt="" width="100%">
+                        <img src="/dist/images/features/docker.png" alt="" width="100%">
                     </div>
                     <div class="col s12 m4 l4">
-                        <h5 class="w-300">Portability</h5>
-                        <p class="w-300 fs-16">EvalAI was designed with keeping in mind scalability and portability of
-                            such a system from the very inception of the idea. Most of the components rely heavily on
-                            open-source technologies – Docker, Django, Node.js, and PostgreSQL.</p>
+                        <h5 class="w-300">How It Works</h5>
+                        <p class="w-300 fs-16">Participants submit code in the form of
+                        docker images which are evaluated against test environments on the evaluation server. During
+                        evaluation, the worker fetches the image, test environment, and the model snapshot and spins
+                        up a new container to perform evaluation.</p>
                     </div>
-                    <div class="col s12 m2 l2">
-                        <img src="/dist/images/features/faster-eval.png" alt="" width="100%">
+                    <!--<div class="col s12 m2 l2">
+                        <img src="/dist/images/features/docker.png" alt="" width="100%">
                     </div>
                     <div class="col s12 m4 l4">
-                        <h5 class="w-300">Faster evaluation</h5>
-                        <p class="w-300 fs-16">We warm-up the worker nodes at start-up by importing the challenge code
-                            and pre-loading the dataset in memory. We also split the dataset into small chunks that are
-                            simultaneously evaluated on multiple cores. These simple tricks result in faster evaluation
-                            and reduces the evaluation time by an order of magnitude in some cases.</p>
-                    </div>
+                        <h5 class="w-300">How It Works</h5>
+                        <p class="w-300 fs-16">Participants submit code in the form of
+                        docker images which are evaluated against test environments on the evaluation server. During
+                        evaluation, the worker fetches the image, test environment, and the model snapshot and spins
+                        up a new container to perform evaluation.</p>
+                    </div>-->
                 </div>
             </div>
         </section>
@@ -390,19 +389,19 @@
                     <h4 class="w-300 center">Sponsors</h4>
                 </div>
                 <div class="row">
-                    <div class="col s12 m4 l4 offset-l2">
+                    <div class="col s12 m4 l4 offset-l0">
                         <div class="evalai-sponsor-logo">
-                            <img src="dist/images/sponsors/intrinsic.png" id="Intrinsic">
+                            <a href="https://www.intrinsic.ai"><img src="dist/images/sponsors/intrinsic.png" id="Intrinsic"></a>
                         </div>
                     </div>
-                    <div class="col s12 m4 l6">
+                    <div class="col s12 m4 l4">
                         <div class="evalai-sponsor-logo">
-                            <img src="dist/images/sponsors/opencv.png" id="OpenCV">
+                            <a href="https://opencv.org"><img src="dist/images/sponsors/opencv.png" id="OpenCV"></a>
                         </div>
                     </div>
-                    <div class="col s12 m4 l6">
+                    <div class="col s12 m4 l3">
                         <div class="evalai-sponsor-logo">
-                            <img src="dist/images/sponsors/bop.png" id="bop">
+                            <a href="https://bop.felk.cvut.cz/challenges/"><img src="dist/images/sponsors/bop-logo.png" id="bop"></a>
                         </div>
                     </div>
                 </div>
