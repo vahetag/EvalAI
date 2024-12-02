@@ -47,6 +47,11 @@ class Profile(TimeStampedModel):
     github_url = models.URLField(max_length=200, null=True, blank=True)
     google_scholar_url = models.URLField(max_length=200, null=True, blank=True)
     linkedin_url = models.URLField(max_length=200, null=True, blank=True)
+    confirmed_no_alphabet_affiliation = models.BooleanField(
+        null=False,
+        default=False,  # No default value forces the field to be explicitly set
+        help_text="User must confirm that they are not associated with any Alphabet portfolio company",
+    )
 
     def __str__(self):
         return "{}".format(self.user)

@@ -1,5 +1,5 @@
 // Invoking IIFE for auth
-(function() {
+(function () {
 
     'use strict';
 
@@ -42,30 +42,30 @@
         vm.loginContainer = angular.element('.auth-container');
 
         // show loader
-        vm.startLoader = function(msg) {
+        vm.startLoader = function (msg) {
             $rootScope.isLoader = true;
             $rootScope.loaderTitle = msg;
             vm.loginContainer.addClass('low-screen');
         };
 
         // stop loader
-        vm.stopLoader = function() {
+        vm.stopLoader = function () {
             $rootScope.isLoader = false;
             $rootScope.loaderTitle = '';
             vm.loginContainer.removeClass('low-screen');
         };
 
         // toggle password visibility
-        vm.togglePasswordVisibility = function() {
+        vm.togglePasswordVisibility = function () {
             $rootScope.canShowPassword = !$rootScope.canShowPassword;
         };
 
         // toggle confirm password visibility
-        vm.toggleConfirmPasswordVisibility = function() {
+        vm.toggleConfirmPasswordVisibility = function () {
             $rootScope.canShowConfirmPassword = !$rootScope.canShowConfirmPassword;
         };
 
-        vm.resetForm = function() {
+        vm.resetForm = function () {
             // getUser for signup
             vm.regUser = {};
             // useDetails for login
@@ -86,7 +86,7 @@
         };
 
         // Function to signup
-        vm.userSignUp = function(signupFormValid) {
+        vm.userSignUp = function (signupFormValid) {
             if (signupFormValid) {
                 vm.startLoader("Setting up your details!");
                 // call utility service
@@ -97,10 +97,12 @@
                     "username": vm.regUser.name,
                     "password1": vm.regUser.password,
                     "password2": vm.regUser.confirm_password,
-                    "email": vm.regUser.email
+                    "email": vm.regUser.email,
+                    "confirmed_no_alphabet_affiliation": vm.regUser.confirmed_no_alphabet_affiliation,
+                    // "confirmed_no_alphabet_affiliation": true,
                 };
                 parameters.callback = {
-                    onSuccess: function(response) {
+                    onSuccess: function (response) {
                         if (response.status == 201) {
                             vm.isFormError = false;
                             // Redirecting to Dashboard on Signup with limited privilege
@@ -115,7 +117,7 @@
                                 "password": vm.regUser.password,
                             };
                             loginParameters.callback = {
-                                onSuccess: function(response) {
+                                onSuccess: function (response) {
                                     if (response.status == 200) {
                                         utilities.storeData('userKey', response.data.token);
                                         if ($rootScope.previousState) {
@@ -128,12 +130,12 @@
                                         alert("Something went wrong");
                                     }
                                 },
-                                onError: function(response) {
+                                onError: function (response) {
                                     if (response.status == 400) {
                                         vm.isFormError = true;
                                         var non_field_errors;
                                         try {
-                                            non_field_errors = typeof(response.data.non_field_errors) !== 'undefined' ? true : false;
+                                            non_field_errors = typeof (response.data.non_field_errors) !== 'undefined' ? true : false;
                                             if (non_field_errors) {
                                                 vm.FormError = response.data.non_field_errors[0];
                                             }
@@ -145,20 +147,20 @@
                                 }
                             };
                             utilities.sendRequest(loginParameters, "no-header");
-                        } 
+                        }
                         vm.stopLoader();
                     },
-                    onError: function(response) {
+                    onError: function (response) {
                         if (response.status == 400) {
                             vm.stopLoader();
                             vm.isFormError = true;
                             var non_field_errors, isUsername_valid, isEmail_valid, isPassword1_valid, isPassword2_valid;
                             try {
-                                non_field_errors = typeof(response.data.non_field_errors) !== 'undefined' ? true : false;
-                                isUsername_valid = typeof(response.data.username) !== 'undefined' ? true : false;
-                                isEmail_valid = typeof(response.data.email) !== 'undefined' ? true : false;
-                                isPassword1_valid = typeof(response.data.password1) !== 'undefined' ? true : false;
-                                isPassword2_valid = typeof(response.data.password2) !== 'undefined' ? true : false;
+                                non_field_errors = typeof (response.data.non_field_errors) !== 'undefined' ? true : false;
+                                isUsername_valid = typeof (response.data.username) !== 'undefined' ? true : false;
+                                isEmail_valid = typeof (response.data.email) !== 'undefined' ? true : false;
+                                isPassword1_valid = typeof (response.data.password1) !== 'undefined' ? true : false;
+                                isPassword2_valid = typeof (response.data.password2) !== 'undefined' ? true : false;
                                 if (non_field_errors) {
                                     vm.FormError = response.data.non_field_errors[0];
                                 } else if (isUsername_valid) {
@@ -219,7 +221,7 @@
         };
 
         // Function to login
-        vm.userLogin = function(loginFormValid) {
+        vm.userLogin = function (loginFormValid) {
             if (loginFormValid) {
                 vm.startLoader("Taking you to EvalAI!");
                 // call utility service
@@ -231,7 +233,7 @@
                     "password": vm.getUser.password,
                 };
                 parameters.callback = {
-                    onSuccess: function(response) {
+                    onSuccess: function (response) {
                         if (response.status == 200) {
                             utilities.storeData('userKey', response.data.token);
                             vm.setRefreshJWT();
@@ -245,12 +247,12 @@
                             alert("Something went wrong");
                         }
                     },
-                    onError: function(response) {
+                    onError: function (response) {
                         if (response.status == 400) {
                             vm.isFormError = true;
                             var non_field_errors;
                             try {
-                                non_field_errors = typeof(response.data.non_field_errors) !== 'undefined' ? true : false;
+                                non_field_errors = typeof (response.data.non_field_errors) !== 'undefined' ? true : false;
                                 if (non_field_errors) {
                                     vm.FormError = response.data.non_field_errors[0];
                                 }
@@ -269,8 +271,8 @@
 
 
         // function to check password strength
-        vm.checkStrength = function(password) {
-            if(password) {
+        vm.checkStrength = function (password) {
+            if (password) {
                 vm.showPasswordStrength = true;
             }
             else {
@@ -282,17 +284,17 @@
         };
 
         // function to Verify Email
-        vm.verifyEmail = function() {
+        vm.verifyEmail = function () {
             vm.startLoader("Verifying Your Email");
             var parameters = {};
             parameters.url = 'auth/registration/account-confirm-email/' + $state.params.email_conf_key + '/';
             parameters.method = 'GET';
             parameters.callback = {
-                onSuccess: function() {
+                onSuccess: function () {
                     vm.email_verify_msg = "Your email has been verified successfully";
                     vm.stopLoader();
                 },
-                onError: function() {
+                onError: function () {
                     vm.email_verify_msg = "Something went wrong!! Please try again.";
                     vm.stopLoader();
                 }
@@ -302,7 +304,7 @@
         };
 
         // function to reset password
-        vm.resetPassword = function(resetPassFormValid) {
+        vm.resetPassword = function (resetPassFormValid) {
             if (resetPassFormValid) {
                 vm.startLoader("Sending Mail");
                 var parameters = {};
@@ -312,7 +314,7 @@
                     "email": vm.getUser.email,
                 };
                 parameters.callback = {
-                    onSuccess: function(response) {
+                    onSuccess: function (response) {
                         vm.isMail = false;
                         vm.getUser.error = false;
                         vm.isFormError = false;
@@ -320,7 +322,7 @@
                         vm.getUser.email = '';
                         vm.stopLoader();
                     },
-                    onError: function(response) {
+                    onError: function (response) {
                         vm.isFormError = true;
                         vm.FormError = (response.status == 400) ? response.data.details : "Something went wrong. Please try again";
                         vm.stopLoader();
@@ -333,7 +335,7 @@
         };
 
         // function to reset password confirm
-        vm.resetPasswordConfirm = function(resetconfirmFormValid) {
+        vm.resetPasswordConfirm = function (resetconfirmFormValid) {
             if (resetconfirmFormValid) {
                 vm.startLoader("Resetting Your Password");
                 var parameters = {};
@@ -347,19 +349,19 @@
                 };
 
                 parameters.callback = {
-                    onSuccess: function(response) {
+                    onSuccess: function (response) {
                         var details = response.data;
                         vm.isResetPassword = true;
                         vm.deliveredMsg = details.detail;
                         vm.stopLoader();
                     },
-                    onError: function(response) {
+                    onError: function (response) {
                         var token_valid, password1_valid, password2_valid;
                         vm.isFormError = true;
                         try {
-                            token_valid = typeof(response.data.token) !== 'undefined' ? true : false;
-                            password1_valid = typeof(response.data.new_password1) !== 'undefined' ? true : false;
-                            password2_valid = typeof(response.data.new_password2) !== 'undefined' ? true : false;
+                            token_valid = typeof (response.data.token) !== 'undefined' ? true : false;
+                            password1_valid = typeof (response.data.new_password1) !== 'undefined' ? true : false;
+                            password2_valid = typeof (response.data.new_password2) !== 'undefined' ? true : false;
                             if (token_valid) {
                                 vm.FormError = "this link has been already used or expired.";
                             } else if (password1_valid) {
@@ -380,7 +382,7 @@
             }
         };
 
-        $rootScope.$on('$stateChangeStart', function() {
+        $rootScope.$on('$stateChangeStart', function () {
             vm.resetForm();
         });
     }
