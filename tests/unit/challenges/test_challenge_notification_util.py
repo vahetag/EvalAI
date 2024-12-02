@@ -108,7 +108,7 @@ class TestChallengeStartNotifier(BaseTestClass):
         for email in host_emails:
             calls.append(
                 mock.call(
-                    sender=settings.CLOUDCV_TEAM_EMAIL,
+                    sender=settings.OPENCV_TEAM_EMAIL,
                     recipient=email,
                     template_id=template_id,
                     template_data=template_data,
