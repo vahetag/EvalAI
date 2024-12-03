@@ -74,7 +74,10 @@
             <input type="checkbox" name="confirmed_no_alphabet_affiliation" id="confirmed_no_alphabet_affiliation" ng-model="auth.regUser.confirmed_no_alphabet_affiliation" required />
             <label for="confirmed_no_alphabet_affiliation">I confirm that I am not associated with any Alphabet
                 portfolio company</label>
-
+            <div class="wrn-msg text-highlight" ng-messages="signupForm.confirmed_no_alphabet_affiliation.$error"
+            ng-if="signupForm.confirmed_no_alphabet_affiliation.$touched || signupForm.$submitted">
+                <p ng-message="required">This confirmation is required.</p>
+            </div>
         </div>
         <!-- submit button -->
         <div class="align-left reg-control">
