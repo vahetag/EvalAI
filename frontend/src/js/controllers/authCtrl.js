@@ -124,7 +124,7 @@
                                             $state.go($rootScope.previousState);
                                             vm.stopLoader();
                                         } else {
-                                            $state.go('web.dashboard');
+                                            $state.go('web.challenge-main.challenge-page.participate', {challengeId: 1});
                                         }
                                     } else {
                                         alert("Something went wrong");
@@ -223,7 +223,7 @@
         // Function to login
         vm.userLogin = function (loginFormValid) {
             if (loginFormValid) {
-                vm.startLoader("Taking you to EvalAI!");
+                vm.startLoader("Taking you to Bin Picking Challenge!");
                 // call utility service
                 var parameters = {};
                 parameters.url = 'auth/login/';
@@ -241,7 +241,7 @@
                                 $state.go($rootScope.previousState);
                                 vm.stopLoader();
                             } else {
-                                $state.go('web.dashboard');
+                                $state.go('web.challenge-main.challenge-page.participate', {challengeId: 1});
                             }
                         } else {
                             alert("Something went wrong");

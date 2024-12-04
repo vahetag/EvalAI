@@ -46,7 +46,8 @@
                 if (status == 403) {
                     vm.error = error;
                     utilities.storeData('emailError', error.detail);
-                    vm.isPrivileged = false;
+                    // vm.isPrivileged = false;
+                    $state.go('web.challenge-main.challenge-page.participate', {challengeId: 1});
                 } else if (status == 401) {
                     alert("Timeout, Please login again to continue!");
                     utilities.resetStorage();
