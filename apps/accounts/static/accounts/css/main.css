@@ -1846,7 +1846,7 @@ a.dashboard-evailai-logo img {
 }
 
 .web-container {
-  width: calc(100vw - 223px);
+  width: 100%;
   float: right;
   padding-top: 70px;
   overflow-x: hidden;
