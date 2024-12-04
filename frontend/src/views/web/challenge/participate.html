@@ -121,13 +121,16 @@
 </section>
 <section ng-if="!challenge.isActive" class="ev-sm-container ev-view challenge-container">
     <div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view">
-        <p class="fs-16 w-300">Sorry, the challenge is not active.</p>
+        <p class="fs-16 w-300">The Challenge starts on February 1st! <a ui-sref="auth.signup" class="blue-text"
+            ui-sref-active="active-auth" ng-click="auth.resetForm()">Register</a> now to get notified when it starts. 
+            Visit the <a href="https://join.slack.com/t/open-cv/shared_invite/zt-2p21qintg-_YEn2rAdnVlS2cmbPiBvVg" class="blue-text">official Slack server</a> 
+            and <a href="https://forum.opencv.org" class="blue-text">Forum</a> to find teammates!</p>
     </div>
 </section>
-<section ng-if="!isAuth" class="ev-sm-container ev-view challenge-container">
+<section ng-if="!isAuth && challenge.isActive" class="ev-sm-container ev-view challenge-container">
     <div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view">
         <p ng-if="!isAuth" class="fs-16 w-300">Please <a ui-sref="auth.login" class="blue-text"
-                ui-sref-active="active-auth" ng-click="auth.resetForm()">log in</a> to participate in this challenge.
+                ui-sref-active="active-auth" ng-click="auth.resetForm()">sign up</a> to participate in this challenge.
         </p>
     </div>
 </section>
