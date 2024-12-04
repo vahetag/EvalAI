@@ -119,11 +119,18 @@
         </div>
     </div>
 </section>
-<section ng-if="!challenge.isActive" class="ev-sm-container ev-view challenge-container">
+<section ng-if="!isAuth && !challenge.isActive" class="ev-sm-container ev-view challenge-container">
     <div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view">
         <p class="fs-16 w-300">The Challenge starts on February 1st! <a ui-sref="auth.signup" class="blue-text"
             ui-sref-active="active-auth" ng-click="auth.resetForm()">Register</a> now to get notified when it starts. 
             Visit the <a href="https://join.slack.com/t/open-cv/shared_invite/zt-2p21qintg-_YEn2rAdnVlS2cmbPiBvVg" class="blue-text">official Slack server</a> 
+            and <a href="https://forum.opencv.org" class="blue-text">Forum</a> to find teammates!</p>
+    </div>
+</section>
+<section ng-if="isAuth && !challenge.isActive" class="ev-sm-container ev-view challenge-container">
+    <div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view">
+        <p class="fs-16 w-300">Thank you for signing up! The Challenge starts on February 1st, and we'll keep you updated.
+            In the meantime visit the <a href="https://join.slack.com/t/open-cv/shared_invite/zt-2p21qintg-_YEn2rAdnVlS2cmbPiBvVg" class="blue-text">official Slack server</a> 
             and <a href="https://forum.opencv.org" class="blue-text">Forum</a> to find teammates!</p>
     </div>
 </section>
