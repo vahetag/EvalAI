@@ -1,7 +1,7 @@
 // define services here
 
 // Basic utilities
-(function() {
+(function () {
 
     'use strict';
 
@@ -14,7 +14,7 @@
     function utilities($http, EnvironmentConfig) {
 
         // factory for API calls
-        this.sendRequest = function(parameters, header, type) {
+        this.sendRequest = function (parameters, header, type) {
             var url = EnvironmentConfig.API + parameters.url;
             var data = parameters.data;
             var token = parameters.token;
@@ -54,7 +54,7 @@
                         'Content-Type': undefined,
                         'Authorization': "Token " + token
                     };
-                    req.transformRequest = function(data) {
+                    req.transformRequest = function (data) {
                         return data;
                     };
 
@@ -66,11 +66,11 @@
                 .then(successCallback, errorCallback);
         };
 
-        this.storeData = function(key, value) {
+        this.storeData = function (key, value) {
             localStorage.setItem(key, JSON.stringify(value));
         };
 
-        this.getData = function(key) {
+        this.getData = function (key) {
             if (localStorage.getItem(key) === null) {
                 return false;
             } else {
@@ -78,12 +78,12 @@
             }
         };
 
-        this.deleteData = function(key) {
+        this.deleteData = function (key) {
             localStorage.removeItem(key);
         };
 
         // user verification auth service
-        this.isAuthenticated = function() {
+        this.isAuthenticated = function () {
             if (this.getData('userKey')) {
                 return true;
             } else {
@@ -91,33 +91,33 @@
             }
         };
 
-        this.resetStorage = function() {
+        this.resetStorage = function () {
             localStorage.clear();
         };
 
-        this.showLoader = function() {
+        this.showLoader = function () {
             angular.element("#sim-loader").show();
             angular.element(".web-container").addClass('low-screen');
         };
 
-        this.hideLoader = function() {
+        this.hideLoader = function () {
             angular.element("#sim-loader").fadeOut();
             angular.element(".web-container").removeClass('low-screen');
         };
 
-        this.showButton = function() {
+        this.showButton = function () {
             angular.element("#scroll-up").show();
         };
 
-        this.hideButton = function() {
+        this.hideButton = function () {
             angular.element("#scroll-up").fadeOut();
         };
 
-        this.passwordStrength = function(password){
+        this.passwordStrength = function (password) {
 
-           //Regular Expressions.  
+            //Regular Expressions.  
             var regex = new Array();
-            regex.push("[A-Z]","[a-z]","[0-9]","[$$!%*#?&]");
+            regex.push("[A-Z]", "[a-z]", "[0-9]", "[$$!%*#?&]");
 
             var passed = 0;
             //Validate for each Regular Expression.  
@@ -130,7 +130,7 @@
             if (passed > 2 && password.length > 8) {
                 passed++;
             }
- 
+
             var color = "";
             var strength = "";
             if (passed == 1) {
@@ -150,13 +150,13 @@
                 color = "darkgreen";
             }
             return [strength, color];
-       };
+        };
 
-        this.getEnvironment = function() {
+        this.getEnvironment = function () {
             switch (EnvironmentConfig.API) {
-                case "http://bpc.opencv.org:8000/api/": return "local";
+                case "http://locahost:8000/": return "local";
                 case "https://staging.eval.ai/api/": return "staging";
-                case "https://eval.ai/api/": return "production";
+                case "https://bpc.opencv.org/api/": return "production";
                 default: return "other";
             }
         };

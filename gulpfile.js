@@ -37,8 +37,8 @@ Concat all js libs
 */
 function vendorjs() {
     var paths = [];
-    _.forIn(scripts.chunks, function(chunkScripts, chunkName) {
-        chunkScripts.forEach(function(script) {
+    _.forIn(scripts.chunks, function (chunkScripts, chunkName) {
+        chunkScripts.forEach(function (script) {
             var scriptFileName = scripts.paths[script];
 
             if (!fs.existsSync(__dirname + '/' + scriptFileName)) {
@@ -58,8 +58,8 @@ Concat all css libs
 */
 function vendorcss() {
     var paths = [];
-    _.forIn(styles.chunks, function(chunkStyles, chunkName) {
-        chunkStyles.forEach(function(style) {
+    _.forIn(styles.chunks, function (chunkStyles, chunkName) {
+        chunkStyles.forEach(function (style) {
             var styleFileName = styles.paths[style];
 
             if (!fs.existsSync(__dirname + '/' + styleFileName)) {
@@ -86,7 +86,7 @@ function css() {
         .pipe(gulp_if(production, rename({ suffix: '.min' })))
         .pipe(sourcemaps.write())
         .pipe(gulp.dest('frontend/dist/css'))
-        pipe(connect.reload());
+    pipe(connect.reload());
 }
 
 /*
@@ -157,15 +157,15 @@ Fonts
 */
 function fonts() {
     var font = gulp.src([
-            'bower_components/font-awesome/fonts/fontawesome-webfont.*',
-            'bower_components/materialize/fonts/**/*',
-            'frontend/src/fonts/*'
-        ])
+        'bower_components/font-awesome/fonts/fontawesome-webfont.*',
+        'bower_components/materialize/fonts/**/*',
+        'frontend/src/fonts/*'
+    ])
         .pipe(gulp.dest('frontend/dist/fonts/'));
 
     var fontCss = gulp.src([
-            'bower_components/font-awesome/css/font-awesome.css'
-        ])
+        'bower_components/font-awesome/css/font-awesome.css'
+    ])
         .pipe(gulp_if(production, cleanCSS()))
         .pipe(gulp_if(production, rename({ suffix: '.min' })))
         .pipe(sourcemaps.write())
@@ -244,10 +244,10 @@ function injectpaths() {
             const regex = /\?t=(\d+)/;
             const matches = fileContents.match(regex);
             if (matches && matches[1]) {
-              timestamp = matches[1];
+                timestamp = matches[1];
             }
             cb(null, file);
-          }))
+        }))
         .pipe(rename({
             basename: "index"
         }))
@@ -256,22 +256,22 @@ function injectpaths() {
 
 function replacetimestamp() {
     return gulp.src('frontend/dist/**/*.*')
-    .pipe(replace('___REPLACE_IN_GULP___', timestamp))
-    .pipe(gulp.dest('frontend/dist'));
+        .pipe(replace('___REPLACE_IN_GULP___', timestamp))
+        .pipe(gulp.dest('frontend/dist'));
 }
 
 /*
 js linting
 */
 var lint_path = {
-    js: ['frontend/src/js/**/*.js', ]
+    js: ['frontend/src/js/**/*.js',]
 }
 
 function lint() {
     return gulp.src(lint_path.js)
         .pipe(eslint({}))
         .pipe(eslint.format())
-        .pipe(eslint.results(function(results) {
+        .pipe(eslint.results(function (results) {
             // Get the count of lint errors 
             var countError = results.errorCount;
             //Get the count of lint warnings
@@ -291,22 +291,22 @@ function lint() {
 /* 
 Start a server for serving frontend
 */
-function startServer() {
-    // initially close the existance server if exists
+function startServer(production = false, done) {
     connect.serverClose();
     connect.server({
         root: 'frontend/',
         port: 8888,
         host: '0.0.0.0',
-        livereload: true,
-        middleware: function(connect) {
+        livereload: !production,
+        middleware: function (connect) {
             return [
                 connectModRewrite([
-                    '!\\.html|\\.js|\\.css|\\.ico|\\.png|\\.gif|\\.jpg|\\.woff|.\\.ttf|.\\otf|\\.jpeg|\\.swf.*$ /index.html [NC,L]'
+                    '!\\.html|\\.js|\\.css|\\.ico|\\.png|\\.gif|\\.jpg|\\.woff|\\.ttf|.\\.otf|\\.jpeg|\\.swf.*$ /index.html [NC,L]'
                 ])
             ];
         }
     });
+    done();
 }
 
 function watch() {
@@ -322,27 +322,32 @@ function watch() {
 
 var parallelTasks = gulp.parallel(vendorcss, vendorjs, css, js, html, images, fonts);
 
-gulp.task('production', gulp.series(clean, function(done) {
-    production = true;
-    done();
-}, parallelTasks, configProd, injectpaths, replacetimestamp, lint));
+gulp.task('production', gulp.series(
+    clean,
+    function (done) { production = true; done(); },
+    parallelTasks,
+    configProd,
+    injectpaths,
+    lint,
+    function (done) { startServer(true, done); } // pass `true` for production
+));
 
-gulp.task('staging', gulp.series(clean, function(done) {
+gulp.task('staging', gulp.series(clean, function (done) {
     production = true;
     done();
 }, parallelTasks, configStaging, injectpaths, replacetimestamp, lint));
 
-gulp.task('dev', gulp.series(clean, function(done) {
+gulp.task('dev', gulp.series(clean, function (done) {
     production = false;
     done();
 }, parallelTasks, configDev, injectpaths, lint));
 
-gulp.task('dev:runserver', gulp.series(clean ,function(done) {
+gulp.task('dev:runserver', gulp.series(clean, function (done) {
     production = false;
     done();
 }, parallelTasks, configDev, injectpaths, lint, gulp.parallel(watch, startServer)));
 
-gulp.task('runserver', gulp.series(function(done) {
+gulp.task('runserver', gulp.series(function (done) {
     production = false;
     done();
 }, gulp.parallel(watch, startServer)));

@@ -138,10 +138,7 @@ def send_email(
 
 
 def get_url_from_hostname(hostname):
-    if settings.DEBUG or settings.TEST:
-        scheme = "http"
-    else:
-        scheme = "https"
+    scheme = "https"
     url = "{}://{}".format(scheme, hostname)
     return url
 
@@ -253,7 +250,7 @@ def send_slack_notification(webhook=settings.SLACK_WEB_HOOK_URL, message=""):
     try:
         data = {
             "attachments": [{"color": "ffaf4b", "fields": message["fields"]}],
-            "icon_url": "https://eval.ai/dist/images/evalai-logo-single.png",
+            "icon_url": "https://bpc.opencv.org/dist/images/evalai-logo-single.png",
             "text": message["text"],
             "username": "EvalAI",
         }

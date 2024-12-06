@@ -7,7 +7,8 @@ import warnings
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["bpc.opencv.org"]
+
 
 DATABASES = {
     "default": {
@@ -62,7 +63,8 @@ CACHES = {
     "throttling": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
 }
 
-MEDIA_URL = "/media/"
+STATIC_URL = "/api/static/"
+MEDIA_URL = "/api/media/"
 
 MIDDLEWARE += [  # noqa: ignore=F405
     "debug_toolbar.middleware.DebugToolbarMiddleware",

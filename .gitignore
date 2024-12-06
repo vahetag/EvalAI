@@ -73,3 +73,5 @@ monitoring/prometheus/prometheus_db/*
 monitoring/grafana/grafana_db/grafana.db
 monitoring/alertmanager/data/*
 !monitoring/alertmanager/data/.gitkeep
+staticfiles
+django.log.*
