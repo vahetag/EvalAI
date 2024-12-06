@@ -1,7 +1,7 @@
 {
     "local": {
         "EnvironmentConfig": {
-            "API": "http://24.199.107.79:8000/api/"
+            "API": "http://bpc.opencv.org:8000/api/"
         }
     },
     "staging": {

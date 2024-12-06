@@ -154,7 +154,7 @@
 
         this.getEnvironment = function() {
             switch (EnvironmentConfig.API) {
-                case "http://24.199.107.79:8000/api/": return "local";
+                case "http://bpc.opencv.org:8000/api/": return "local";
                 case "https://staging.eval.ai/api/": return "staging";
                 case "https://eval.ai/api/": return "production";
                 default: return "other";

@@ -8,5 +8,5 @@
  */
 export const environment = {
   production: false,
-  api_endpoint: 'http://24.199.107.79:8000/api/',
+  api_endpoint: 'http://bpc.opencv.org:8000/api/',
 };
