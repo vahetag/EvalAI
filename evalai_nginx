@@ -8,8 +8,8 @@ server {
     server_name bpc.opencv.org;
 
     listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/bpc.opencv.org/fullchain.pem; # manag>
-    ssl_certificate_key /etc/letsencrypt/live/bpc.opencv.org/privkey.pem; # man>
+    ssl_certificate /etc/letsencrypt/live/bpc.opencv.org/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/bpc.opencv.org/privkey.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
     
@@ -30,9 +30,23 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # Serve static files
+    location /api/static/ {
+        alias /var/www/bpc.opencv.org/static/;  # Updated path
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
+    # Serve media files (if applicable)
+    location /api/media/ {
+        alias /home/ubuntu/project/media/;  # Update if you have media files
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
     # django backend
     location ^~ /api/ {
-	    proxy_pass http://localhost:8000;
+        proxy_pass http://localhost:8000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header Upgrade $http_upgrade;
