@@ -124,7 +124,7 @@
                                             $state.go($rootScope.previousState);
                                             vm.stopLoader();
                                         } else {
-                                            $state.go('web.challenge-main.challenge-page.participate', {challengeId: 1});
+                                            $state.go('web.challenge-main.challenge-page.participate', {challengeId: 5});
                                         }
                                     } else {
                                         alert("Something went wrong");
