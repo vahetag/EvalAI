@@ -8,24 +8,7 @@
             ><img src="assets/images/evalai-logo-single.png"
           /></a>
         </li>
-        <li>
-          <a class="waves-effect waves-dark main-header-link" routerLink="/challenges/all" routerLinkActive="active"
-          [ngClass] = "{'active': tabHighlight == 'allChallenges' && !isChallengeComponent == true}">All Challenges</a>
-        </li>
         <!-- show after authenticate user -->
-        <li>
-          <a
-            class="waves-effect waves-dark main-header-link"
-            href="https://evalai.readthedocs.io/en/latest/"
-            target="_blank"
-            >Docs</a
-          >
-        </li>
-        <li>
-          <a class="waves-effect waves-dark main-header-link" href="https://evalai-forum.cloudcv.org/" target="_blank"
-            >Discuss</a
-          >
-        </li>
       </ul>
       <ul class="right hide-on-med-and-down">
         <li *ngIf="!authService.isAuth">
@@ -62,17 +45,12 @@
         <li>
           <div class="userView">
             <div class="background">
-              <a class="white-text name">EvalAI</a>
+              <a class="white-text name">BPC</a>
             </div>
           </div>
         </li>
         <li>
           <a class="waves-effect waves-dark" routerLink="/" routerLinkActive="active"><i class="fa fa-home"></i>Home</a>
-        </li>
-        <li *ngIf="!authService.isAuth">
-          <a class="waves-effect waves-dark main-header-link" routerLink="/challenges"
-            ><i class="fa fa-globe"></i>All Challenges</a
-          >
         </li>
         <li *ngIf="!authService.isAuth">
           <a class="waves-effect waves-dark main-header-link" routerLink="/auth/signup" routerLinkActive="active"
@@ -85,21 +63,6 @@
           >
         </li>
         <!-- show after authenticate user -->
-        <li *ngIf="authService.isAuth">
-          <a class="waves-effect waves-dark main-header-link" routerLink="/challenges" routerLinkActive="active"
-            ><i class="fa fa-globe"></i>All Challenges</a
-          >
-        </li>
-        <li *ngIf="authService.isAuth">
-          <a class="waves-effect waves-dark main-header-link" routerLink="/teams" routerLinkActive="active"
-            ><i class="fa fa-users"></i>Participant Teams</a
-          >
-        </li>
-        <li *ngIf="authService.isAuth">
-          <a class="waves-effect waves-dark main-header-link" routerLink="/challenge-create" routerLinkActive="active"
-            ><i class="fa fa-paper-plane"></i>Create Challenge</a
-          >
-        </li>
         <li *ngIf="authService.isAuth">
           <a class="waves-effect waves-dark main-header-link" routerLink="/profile" routerLinkActive="active"
             ><i class="fa fa-user"></i>Hi {{ user.username }}!</a
