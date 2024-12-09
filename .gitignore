@@ -75,3 +75,6 @@ monitoring/alertmanager/data/*
 !monitoring/alertmanager/data/.gitkeep
 staticfiles
 django.log.*
+docker/dev/docker.env
+docker/prod/docker_production.env
+docker/prod/docker_staging.env

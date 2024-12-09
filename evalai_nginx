@@ -37,13 +37,12 @@ server {
         add_header Cache-Control "public, max-age=2592000";
     }
 
-    # Serve media files (if applicable)
-    location /api/media/ {
-        alias /home/ubuntu/project/media/;  # Update if you have media files
-        expires 30d;
-        add_header Cache-Control "public, max-age=2592000";
-    }
-
+    # # Serve media files (if applicable)
+    # location /api/media/ {
+    #     alias /home/ubuntu/veb/EvalAI/media/;
+    #     expires 30d;
+    #     add_header Cache-Control "public, max-age=2592000";
+    # }
     # django backend
     location ^~ /api/ {
         proxy_pass http://localhost:8000;

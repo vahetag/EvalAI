@@ -60,13 +60,13 @@ MEDIA_URL = "http://%s.s3.amazonaws.com/%s/" % (
 DEFAULT_FILE_STORAGE = "settings.custom_storages.MediaStorage"
 
 # Setup Email Backend related settings
-DEFAULT_FROM_EMAIL = "noreply@cloudcv.org"
+DEFAULT_FROM_EMAIL = "competition@opencv.org"
 EMAIL_BACKEND = "django_ses.SESBackend"
-EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_PORT = os.environ.get("EMAIL_PORT")
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_PASSWORD = "EMAIL_API_KEY"
+EMAIL_HOST_USER = "apikey"
+EMAIL_PORT = 25
+EMAIL_USE_TLS = True
 
 # Hide API Docs on production environment
 REST_FRAMEWORK_DOCS = {"HIDE_DOCS": True}

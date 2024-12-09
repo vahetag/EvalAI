@@ -28,6 +28,8 @@ services:
     volumes:
       - .:/code
       - /var/www/bpc.opencv.org/static/:/code/staticfiles  # Bind mount to new static directory
+      - ./media:/code/media   # Mount local media directory into the container
+      # - /var/www/bpc.opencv.org/media/:/code/media
     ulimits:
       nofile:
         soft: 1048576
