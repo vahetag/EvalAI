@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from .models import JwtToken, Profile
 from rest_framework import serializers
 
+from rest_auth.registration.serializers import RegisterSerializer
 
 class UserDetailsSerializer(serializers.ModelSerializer):
     """
@@ -36,8 +37,14 @@ class ProfileSerializer(UserDetailsSerializer):
     # New boolean field with 'source' to specify where it is stored in the model
     confirmed_no_alphabet_affiliation = serializers.BooleanField(
         source="profile.confirmed_no_alphabet_affiliation",
-        required=True,
-        help_text="User must confirm that they are not associated with any Alphabet portfolio company",
+        required=False,
+        # help_text="User must confirm that they are not associated with any Alphabet portfolio company",
+    )
+    # New boolean field with 'source' to specify where it is stored in the model
+    recieve_newsletter = serializers.BooleanField(
+        source="profile.recieve_newsletter",
+        required=False,
+        # help_text="User must confirm that they are not associated with any Alphabet portfolio company",
     )
 
     class Meta(UserDetailsSerializer.Meta):
@@ -51,6 +58,7 @@ class ProfileSerializer(UserDetailsSerializer):
             "github_url",
             "google_scholar_url",
             "linkedin_url",
+            "recieve_newsletter",
             "confirmed_no_alphabet_affiliation",
         )
 
@@ -60,7 +68,9 @@ class ProfileSerializer(UserDetailsSerializer):
         github_url = profile_data.get("github_url")
         google_scholar_url = profile_data.get("google_scholar_url")
         linkedin_url = profile_data.get("linkedin_url")
-        confirmed_no_alphabet_affiliation = validated_data.get("confirmed_no_alphabet_affiliation")
+
+        confirmed_no_alphabet_affiliation = profile_data.get("confirmed_no_alphabet_affiliation")
+        recieve_newsletter = profile_data.get("recieve_newsletter")
 
         instance = super(ProfileSerializer, self).update(instance, validated_data)
 
@@ -71,6 +81,7 @@ class ProfileSerializer(UserDetailsSerializer):
             profile.google_scholar_url = google_scholar_url
             profile.linkedin_url = linkedin_url
             profile.confirmed_no_alphabet_affiliation = confirmed_no_alphabet_affiliation
+            profile.recieve_newsletter = recieve_newsletter
             profile.save()
         return instance
 
@@ -88,6 +99,7 @@ class UserProfileSerializer(UserDetailsSerializer):
             "google_scholar_url",
             "linkedin_url",
             "confirmed_no_alphabet_affiliation",
+            "recieve_newsletter",
         )
 
 
@@ -119,3 +131,38 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
                 return super().get_email_options()
         except get_user_model().DoesNotExist:
             raise ValidationError({"details": "User with the given email does not exist."})
+
+
+class CustomRegisterSerializer(RegisterSerializer):
+    affiliation = serializers.CharField(required=False, allow_blank=True)
+    github_url = serializers.URLField(required=False, allow_blank=True)
+    google_scholar_url = serializers.URLField(required=False, allow_blank=True)
+    linkedin_url = serializers.URLField(required=False, allow_blank=True)
+    confirmed_no_alphabet_affiliation = serializers.BooleanField(required=False)
+    recieve_newsletter = serializers.BooleanField(required=False)
+
+    def get_cleaned_data(self):
+        data = super().get_cleaned_data()
+        # Add your fields to the cleaned data
+        data['affiliation'] = self.validated_data.get('affiliation', '')
+        data['github_url'] = self.validated_data.get('github_url', '')
+        data['google_scholar_url'] = self.validated_data.get('google_scholar_url', '')
+        data['linkedin_url'] = self.validated_data.get('linkedin_url', '')
+        data['confirmed_no_alphabet_affiliation'] = self.validated_data.get('confirmed_no_alphabet_affiliation', False)
+        data['recieve_newsletter'] = self.validated_data.get('recieve_newsletter', False)
+        return data
+
+    def save(self, request):
+        user = super().save(request)
+        user.save()
+
+        # Now assign profile fields
+        user.profile.affiliation = self.cleaned_data.get('affiliation')
+        user.profile.github_url = self.cleaned_data.get('github_url')
+        user.profile.google_scholar_url = self.cleaned_data.get('google_scholar_url')
+        user.profile.linkedin_url = self.cleaned_data.get('linkedin_url')
+        user.profile.confirmed_no_alphabet_affiliation = self.cleaned_data.get('confirmed_no_alphabet_affiliation')
+        user.profile.recieve_newsletter = self.cleaned_data.get('recieve_newsletter')
+
+        user.profile.save()
+        return user

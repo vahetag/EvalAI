@@ -84,7 +84,8 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 DEFAULT_FROM_EMAIL = "competition@opencv.org"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.sendgrid.net"
-EMAIL_HOST_PASSWORD = "EMAIL_API_KEY"
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+# print("EMAIL_HOST_PASSWORD", EMAIL_HOST_PASSWORD)
 EMAIL_HOST_USER = "apikey"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
@@ -93,7 +94,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Ensure this line is prese
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Optional: Define MEDIA_ROOT if you handle media files
 print(f"BASE_DIR: {BASE_DIR}")
 print(f"STATIC_ROOT: {STATIC_ROOT}")
-print(f"STATIC_ROOT: {MEDIA_ROOT}")
+print(f"MEDIA_ROOT: {MEDIA_ROOT}")
 
 # from .common import *  # noqa: ignore=F405
 

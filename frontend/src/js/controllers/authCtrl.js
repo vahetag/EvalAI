@@ -99,7 +99,7 @@
                     "password2": vm.regUser.confirm_password,
                     "email": vm.regUser.email,
                     "confirmed_no_alphabet_affiliation": vm.regUser.confirmed_no_alphabet_affiliation,
-                    // "confirmed_no_alphabet_affiliation": true,
+                    "recieve_newsletter": vm.regUser.recieve_newsletter,
                 };
                 parameters.callback = {
                     onSuccess: function (response) {
@@ -107,7 +107,7 @@
                             vm.isFormError = false;
                             // Redirecting to Dashboard on Signup with limited privilege
                             $rootScope.notify("success", "Registered successfully. Please verify your email address!");
-                            vm.startLoader("Taking you to EvalAI!");
+                            vm.startLoader("Taking you to home!");
                             // call utility service
                             var loginParameters = {};
                             loginParameters.url = 'auth/login/';
@@ -124,7 +124,7 @@
                                             $state.go($rootScope.previousState);
                                             vm.stopLoader();
                                         } else {
-                                            $state.go('web.challenge-main.challenge-page.participate', {challengeId: 5});
+                                            $state.go('web.challenge-main.challenge-page.participate', { challengeId: 1 });
                                         }
                                     } else {
                                         alert("Something went wrong");
@@ -241,7 +241,7 @@
                                 $state.go($rootScope.previousState);
                                 vm.stopLoader();
                             } else {
-                                $state.go('web.challenge-main.challenge-page.participate', {challengeId: 1});
+                                $state.go('web.challenge-main.challenge-page.participate', { challengeId: 1 });
                             }
                         } else {
                             alert("Something went wrong");
