@@ -291,22 +291,22 @@ function lint() {
 /* 
 Start a server for serving frontend
 */
-function startServer(production = false, done) {
+function startServer() {
+    // initially close the existance server if exists
     connect.serverClose();
     connect.server({
         root: 'frontend/',
         port: 8888,
         host: '0.0.0.0',
-        livereload: !production,
+        livereload: true,
         middleware: function (connect) {
             return [
                 connectModRewrite([
-                    '!\\.html|\\.js|\\.css|\\.ico|\\.png|\\.gif|\\.jpg|\\.woff|\\.ttf|.\\.otf|\\.jpeg|\\.swf.*$ /index.html [NC,L]'
+                    '!\\.html|\\.js|\\.css|\\.ico|\\.png|\\.gif|\\.jpg|\\.woff|.\\.ttf|.\\otf|\\.jpeg|\\.swf.*$ /index.html [NC,L]'
                 ])
             ];
         }
     });
-    done();
 }
 
 function watch() {
@@ -319,18 +319,12 @@ function watch() {
 }
 
 
-
 var parallelTasks = gulp.parallel(vendorcss, vendorjs, css, js, html, images, fonts);
 
-gulp.task('production', gulp.series(
-    clean,
-    function (done) { production = true; done(); },
-    parallelTasks,
-    configProd,
-    injectpaths,
-    lint,
-    function (done) { startServer(true, done); } // pass `true` for production
-));
+gulp.task('production', gulp.series(clean, function (done) {
+    production = true;
+    done();
+}, parallelTasks, configProd, injectpaths, replacetimestamp, lint));
 
 gulp.task('staging', gulp.series(clean, function (done) {
     production = true;
