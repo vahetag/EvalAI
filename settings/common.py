@@ -223,7 +223,10 @@ EXPIRING_TOKEN_LIFESPAN = datetime.timedelta(days=365)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "root": {"level": "INFO", "handlers": ["console"]},
+    "root": {
+        "level": "INFO", 
+        "handlers": ["console"]
+    },
     "filters": {
         "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
         "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
@@ -240,17 +243,8 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
+            "level": "DEBUG",  # Ensure all logs show in the console
             "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-        "logfile": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "django.log"),
-            "maxBytes": 50000,
-            "backupCount": 10,
             "formatter": "verbose",
         },
         "mail_admins": {
@@ -260,19 +254,18 @@ LOGGING = {
         },
     },
     "loggers": {
-        "django": {"handlers": ["console"], "propagate": False},
+        "django": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
         "django.request": {
-            "handlers": ["mail_admins", "console"],
+            "handlers": ["console", "mail_admins"],  # Log requests to console
             "level": "ERROR",
             "propagate": False,
         },
         "django.security": {
-            "handlers": ["mail_admins", "console"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-        "django.db.backends": {
-            "handlers": ["mail_admins", "console"],
+            "handlers": ["console", "mail_admins"],  # Log security issues
             "level": "ERROR",
             "propagate": False,
         },

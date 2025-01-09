@@ -1,0 +1,77 @@
+services:
+  # db:
+  #   image: postgres:10.4
+  #   ports:
+  #     - "5432:5432"
+      
+  memcached:
+    image: memcached:1.6.15
+    ports:
+      - "11211:11211"
+
+  django:
+    hostname: django
+    env_file:
+      - docker/prod_self/docker.env
+    build:
+      context: ./
+      dockerfile: docker/prod_self/django/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - statsd-exporter
+      - memcached
+    volumes:
+      - .:/code
+      # - /var/www/bpc.opencv.org/media/:/code/media
+      # - /var/www/bpc.opencv.org/static/:/code/staticfiles # Bind mount to new static directory
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576
+
+  nodejs:
+    hostname: nodejs
+    build:
+      context: ./
+      dockerfile: docker/prod_self/nodejs/Dockerfile
+    environment:
+      NODE_ENV: production
+    volumes:
+      - /var/www/bpc.opencv.org/frontend/dist:/code/frontend/dist
+      - /var/www/bpc.opencv.org/frontend/index.html:/code/frontend/index.html
+      - /code/node_modules
+      - /code/bower_components
+
+  # worker:
+  #   env_file:
+  #     - docker/prod_self/docker.env
+  #   build:
+  #     context: ./
+  #     dockerfile: docker/prod_self/worker/Dockerfile
+  #   depends_on:
+  #     - django
+  #   volumes:
+  #     - .:/code
+
+  # worker_py3_8:
+  #   env_file:
+  #     - docker/prod_self/docker.env
+  #   build:
+  #     context: ./
+  #     dockerfile: docker/prod_self/worker_py3.8/Dockerfile
+  #   depends_on:
+  #     - django
+  #   volumes:
+  #     - .:/code
+
+
+  statsd-exporter:
+    hostname: statsd
+    image: prom/statsd-exporter:latest
+    command:
+      - '--log.level=info'
+      - '--web.telemetry-path=/statsd/metrics'
+    ports:
+      - '9125:9125'
+      - '9102:9102'
