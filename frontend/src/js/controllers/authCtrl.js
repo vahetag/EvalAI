@@ -99,6 +99,7 @@
                     "password2": vm.regUser.confirm_password,
                     "email": vm.regUser.email,
                     "confirmed_no_alphabet_affiliation": vm.regUser.confirmed_no_alphabet_affiliation,
+                    "receive_participated_challenge_updates": vm.regUser.receive_participated_challenge_updates,
                     "recieve_newsletter": vm.regUser.recieve_newsletter,
                 };
                 parameters.callback = {
@@ -124,7 +125,7 @@
                                             $state.go($rootScope.previousState);
                                             vm.stopLoader();
                                         } else {
-                                            $state.go('web.challenge-main.challenge-page.participate', { challengeId: 1 });
+                                            $state.go('web.challenge-main.challenge-page.overview', { challengeId: 1 });
                                         }
                                     } else {
                                         alert("Something went wrong");
@@ -241,7 +242,7 @@
                                 $state.go($rootScope.previousState);
                                 vm.stopLoader();
                             } else {
-                                $state.go('web.challenge-main.challenge-page.participate', { challengeId: 1 });
+                                $state.go('web.challenge-main.challenge-page.overview', { challengeId: 1 });
                             }
                         } else {
                             alert("Something went wrong");
