@@ -50,7 +50,6 @@ class Profile(TimeStampedModel):
     confirmed_no_alphabet_affiliation = models.BooleanField(
         null=False,
         default=False,  # No default value forces the field to be explicitly set
-        help_text="User must confirm that they are not associated with any Alphabet portfolio company",
     )
 
     def __str__(self):

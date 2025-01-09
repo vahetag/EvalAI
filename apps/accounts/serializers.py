@@ -34,18 +34,10 @@ class ProfileSerializer(UserDetailsSerializer):
     google_scholar_url = serializers.URLField(source="profile.google_scholar_url", allow_blank=True)
     linkedin_url = serializers.URLField(source="profile.linkedin_url", allow_blank=True)
 
-    # New boolean field with 'source' to specify where it is stored in the model
-    confirmed_no_alphabet_affiliation = serializers.BooleanField(
-        source="profile.confirmed_no_alphabet_affiliation",
-        required=False,
-        # help_text="User must confirm that they are not associated with any Alphabet portfolio company",
-    )
-    # New boolean field with 'source' to specify where it is stored in the model
-    recieve_newsletter = serializers.BooleanField(
-        source="profile.recieve_newsletter",
-        required=False,
-        # help_text="User must confirm that they are not associated with any Alphabet portfolio company",
-    )
+    confirmed_no_alphabet_affiliation = serializers.BooleanField(source="profile.confirmed_no_alphabet_affiliation", required=False)
+    # receive_participated_challenge_updates = serializers.BooleanField(source="profile.receive_participated_challenge_updates", required=True)
+    receive_participated_challenge_updates = serializers.BooleanField(source="profile.receive_participated_challenge_updates", required=False)
+    recieve_newsletter = serializers.BooleanField(source="profile.recieve_newsletter", required=False)
 
     class Meta(UserDetailsSerializer.Meta):
         fields = (
@@ -58,8 +50,9 @@ class ProfileSerializer(UserDetailsSerializer):
             "github_url",
             "google_scholar_url",
             "linkedin_url",
-            "recieve_newsletter",
             "confirmed_no_alphabet_affiliation",
+            "receive_participated_challenge_updates",
+            "recieve_newsletter",
         )
 
     def update(self, instance, validated_data):
@@ -70,6 +63,8 @@ class ProfileSerializer(UserDetailsSerializer):
         linkedin_url = profile_data.get("linkedin_url")
 
         confirmed_no_alphabet_affiliation = profile_data.get("confirmed_no_alphabet_affiliation")
+        receive_participated_challenge_updates = profile_data.get("receive_participated_challenge_updates")
+        # receive_participated_challenge_updates = profile_data.get("receive_participated_challenge_updates", False)
         recieve_newsletter = profile_data.get("recieve_newsletter")
 
         instance = super(ProfileSerializer, self).update(instance, validated_data)
@@ -81,6 +76,7 @@ class ProfileSerializer(UserDetailsSerializer):
             profile.google_scholar_url = google_scholar_url
             profile.linkedin_url = linkedin_url
             profile.confirmed_no_alphabet_affiliation = confirmed_no_alphabet_affiliation
+            profile.receive_participated_challenge_updates = receive_participated_challenge_updates
             profile.recieve_newsletter = recieve_newsletter
             profile.save()
         return instance
@@ -99,6 +95,7 @@ class UserProfileSerializer(UserDetailsSerializer):
             "google_scholar_url",
             "linkedin_url",
             "confirmed_no_alphabet_affiliation",
+            "receive_participated_challenge_updates",
             "recieve_newsletter",
         )
 
@@ -139,6 +136,7 @@ class CustomRegisterSerializer(RegisterSerializer):
     google_scholar_url = serializers.URLField(required=False, allow_blank=True)
     linkedin_url = serializers.URLField(required=False, allow_blank=True)
     confirmed_no_alphabet_affiliation = serializers.BooleanField(required=False)
+    receive_participated_challenge_updates = serializers.BooleanField(required=False)
     recieve_newsletter = serializers.BooleanField(required=False)
 
     def get_cleaned_data(self):
@@ -149,6 +147,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         data['google_scholar_url'] = self.validated_data.get('google_scholar_url', '')
         data['linkedin_url'] = self.validated_data.get('linkedin_url', '')
         data['confirmed_no_alphabet_affiliation'] = self.validated_data.get('confirmed_no_alphabet_affiliation', False)
+        data['receive_participated_challenge_updates'] = self.validated_data.get('receive_participated_challenge_updates', False)
         data['recieve_newsletter'] = self.validated_data.get('recieve_newsletter', False)
         return data
 
@@ -162,6 +161,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.profile.google_scholar_url = self.cleaned_data.get('google_scholar_url')
         user.profile.linkedin_url = self.cleaned_data.get('linkedin_url')
         user.profile.confirmed_no_alphabet_affiliation = self.cleaned_data.get('confirmed_no_alphabet_affiliation')
+        user.profile.receive_participated_challenge_updates = self.cleaned_data.get('receive_participated_challenge_updates')
         user.profile.recieve_newsletter = self.cleaned_data.get('recieve_newsletter')
 
         user.profile.save()
