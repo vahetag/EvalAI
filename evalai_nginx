@@ -12,50 +12,66 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/bpc.opencv.org/privkey.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    default_type application/octet-stream;
+
+    client_max_body_size 200M;
+    gzip on;
+    gzip_http_version 1.1;
+    gzip_disable      "MSIE [1-6]\.";
+    gzip_min_length   256;
+    gzip_vary         on;
+    gzip_proxied      expired no-cache no-store private auth;
+    gzip_types        text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_comp_level   9;
+
+    root /var/www/bpc.opencv.org/frontend;
     
-    # ########################################################
-
-    # dvtools next js site
+    # -----------------------------------------
+    # Serve your Angular JS app at "/"
+    # -----------------------------------------
     location / {
-        proxy_pass http://localhost:8888;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_cache_bypass $http_upgrade;
-
-        # Add headers to forward the client's IP address
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        try_files $uri $uri/ /index.html =404;
     }
-
-    # Serve static files
-    location /api/static/ {
-        alias /var/www/bpc.opencv.org/static/;  # Updated path
-        expires 30d;
-        add_header Cache-Control "public, max-age=2592000";
+ 
+    # Serve static files with a long cache lifetime, but WITHOUT 'immutable'
+    location ~* \.(?:css|js|jpg|jpeg|png|gif|ico|woff2?|ttf|svg|eot)$ {
+        # Expires in 1 year
+        expires 1y;
+        # Set Cache-Control without 'immutable'
+        add_header Cache-Control "public, max-age=31536000";
     }
-
-    # # Serve media files (if applicable)
-    # location /api/media/ {
-    #     alias /home/ubuntu/veb/EvalAI/media/;
+    # # -----------------------------------------
+    # # Serve static files from local (Django collectstatic)
+    # # -----------------------------------------
+    # location /api/static/ {
+    #     alias /var/www/bpc.opencv.org/static/;  # Path to your Django static
     #     expires 30d;
     #     add_header Cache-Control "public, max-age=2592000";
     # }
-    # django backend
+
+    # # -----------------------------------------
+    # # Serve media files from local (Django uploads, etc.)
+    # # -----------------------------------------
+    # location /api/media/ {
+    #     alias /var/www/bpc.opencv.org/media/;   # Path to your Django media
+    #     try_files $uri $uri/ =404;
+    # }
+
+    # -----------------------------------------
+    # Proxy all other /api/ routes to Django
+    # -----------------------------------------
     location ^~ /api/ {
-        proxy_pass http://localhost:8000;
+        proxy_pass http://localhost:8000;  # Django’s gunicorn or uwsgi
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_cache_bypass $http_upgrade;
 
-        # Add headers to forward the client's IP address
+        # Forward the client’s IP
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-
 }
