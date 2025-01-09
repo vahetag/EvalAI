@@ -17,18 +17,32 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["bpc.opencv.org",]
-
 CORS_ORIGIN_ALLOW_ALL = False
+IS_STAGING_FLAG = os.environ.get("IS_STAGING", True)
 
-CORS_ORIGIN_WHITELIST = (
-    "http://bpc.opencv.org",
-    "https://bpc.opencv.org",
-    "https://opencv-bpc-comp-2025.s3-us-west-2.amazonaws.com",
-    "https://opencv-bpc-comp-2025.s3.amazonaws.com",
-    "http://localhost:8000",  # Django development server
-    "http://127.0.0.1:8000",  # Django development server (IPv4)
-)
+IS_STAGING = True if IS_STAGING_FLAG == "True" else False 
+
+if not IS_STAGING:
+    ALLOWED_HOSTS = ["bpc.opencv.org",]
+    CORS_ORIGIN_WHITELIST = (
+        "http://bpc.opencv.org",
+        "https://bpc.opencv.org",
+        "https://opencv-bpc-comp-2025.s3-us-west-2.amazonaws.com",
+        "https://opencv-bpc-comp-2025.s3.amazonaws.com",
+        "http://localhost:8000",  # Django development server
+        "http://127.0.0.1:8000",  # Django development server (IPv4)
+    )
+else:
+    ALLOWED_HOSTS = ["bpcstaging.opencv.org",]
+    CORS_ORIGIN_WHITELIST = (
+        "http://bpcstaging.opencv.org",
+        "https://bpcstaging.opencv.org",
+        "https://opencv-bpc-comp-2025.s3-us-west-2.amazonaws.com",
+        "https://opencv-bpc-comp-2025.s3.amazonaws.com",
+        "http://localhost:8000",  # Django development server
+        "http://127.0.0.1:8000",  # Django development server (IPv4)
+    )
+    
 
 DATABASES = {
     "default": {
@@ -64,12 +78,20 @@ if USE_S3_FOR_DJANGO_STATIC_AND_MEDIA:
     AWS_S3_CUSTOM_DOMAIN = "%s.s3-%s.amazonaws.com" % (AWS_STORAGE_BUCKET_NAME, AWS_DEFAULT_REGION)
 
     # static files configuration on S3
-    STATICFILES_LOCATION = "static"
+    if not IS_STAGING:
+        STATICFILES_LOCATION = "static"
+    else:
+        STATICFILES_LOCATION = "staging_static"
+
     STATICFILES_STORAGE = "settings.custom_storages_2.StaticStorage"
     STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
 
     # Media files configuration on S3
-    MEDIAFILES_LOCATION = "media"
+    if not IS_STAGING:
+        MEDIAFILES_LOCATION = "media"
+    else:
+        MEDIAFILES_LOCATION = "staging_media"
+
     MEDIA_URL = "http://%s.s3-%s.amazonaws.com/%s/" % (
         AWS_STORAGE_BUCKET_NAME,
         AWS_DEFAULT_REGION,
