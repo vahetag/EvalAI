@@ -27,15 +27,15 @@ class UserDetailsSerializer(serializers.ModelSerializer):
 class ProfileSerializer(UserDetailsSerializer):
     """
     Serializer to update the user profile.
+    Only update fields that are actually present in the request payload.
     """
 
-    affiliation = serializers.CharField(source="profile.affiliation", allow_blank=True)
-    github_url = serializers.URLField(source="profile.github_url", allow_blank=True)
-    google_scholar_url = serializers.URLField(source="profile.google_scholar_url", allow_blank=True)
-    linkedin_url = serializers.URLField(source="profile.linkedin_url", allow_blank=True)
-
+    # Map Profile fields onto the serializer, required=False so that if they're missing, we don't fail validation.
+    affiliation = serializers.CharField(source="profile.affiliation", required=False, allow_blank=True)
+    github_url = serializers.URLField(source="profile.github_url", required=False, allow_blank=True)
+    google_scholar_url = serializers.URLField(source="profile.google_scholar_url", required=False, allow_blank=True)
+    linkedin_url = serializers.URLField(source="profile.linkedin_url", required=False, allow_blank=True)
     confirmed_no_alphabet_affiliation = serializers.BooleanField(source="profile.confirmed_no_alphabet_affiliation", required=False)
-    # receive_participated_challenge_updates = serializers.BooleanField(source="profile.receive_participated_challenge_updates", required=True)
     receive_participated_challenge_updates = serializers.BooleanField(source="profile.receive_participated_challenge_updates", required=False)
     recieve_newsletter = serializers.BooleanField(source="profile.recieve_newsletter", required=False)
 
@@ -56,31 +56,39 @@ class ProfileSerializer(UserDetailsSerializer):
         )
 
     def update(self, instance, validated_data):
+        """
+        Only update the Profile fields if they are present in the request.
+        Avoid setting them to `None` if the request doesn't include them.
+        """
         profile_data = validated_data.pop("profile", {})
-        affiliation = profile_data.get("affiliation")
-        github_url = profile_data.get("github_url")
-        google_scholar_url = profile_data.get("google_scholar_url")
-        linkedin_url = profile_data.get("linkedin_url")
+        user = super().update(instance, validated_data)  # update User fields (first_name, last_name, etc.)
 
-        confirmed_no_alphabet_affiliation = profile_data.get("confirmed_no_alphabet_affiliation")
-        receive_participated_challenge_updates = profile_data.get("receive_participated_challenge_updates")
-        # receive_participated_challenge_updates = profile_data.get("receive_participated_challenge_updates", False)
-        recieve_newsletter = profile_data.get("recieve_newsletter")
+        profile = user.profile
 
-        instance = super(ProfileSerializer, self).update(instance, validated_data)
+        # Safely update each profile field only if it's in profile_data
+        if "affiliation" in profile_data:
+            profile.affiliation = profile_data["affiliation"]
 
-        profile = instance.profile
-        if profile_data:
-            profile.affiliation = affiliation
-            profile.github_url = github_url
-            profile.google_scholar_url = google_scholar_url
-            profile.linkedin_url = linkedin_url
-            profile.confirmed_no_alphabet_affiliation = confirmed_no_alphabet_affiliation
-            profile.receive_participated_challenge_updates = receive_participated_challenge_updates
-            profile.recieve_newsletter = recieve_newsletter
-            profile.save()
-        return instance
+        if "github_url" in profile_data:
+            profile.github_url = profile_data["github_url"]
 
+        if "google_scholar_url" in profile_data:
+            profile.google_scholar_url = profile_data["google_scholar_url"]
+
+        if "linkedin_url" in profile_data:
+            profile.linkedin_url = profile_data["linkedin_url"]
+
+        if "confirmed_no_alphabet_affiliation" in profile_data:
+            profile.confirmed_no_alphabet_affiliation = profile_data["confirmed_no_alphabet_affiliation"]
+
+        if "receive_participated_challenge_updates" in profile_data:
+            profile.receive_participated_challenge_updates = profile_data["receive_participated_challenge_updates"]
+
+        if "recieve_newsletter" in profile_data:
+            profile.recieve_newsletter = profile_data["recieve_newsletter"]
+
+        profile.save()
+        return user
 
 class UserProfileSerializer(UserDetailsSerializer):
     """
