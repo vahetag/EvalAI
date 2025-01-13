@@ -70,12 +70,12 @@
             </div>
         </div>
         <!-- Non Affiliated Checkbox -->
-        <div class="input-field align-left">
+        <div class="input-field align-left" style="position: relative; margin-bottom: 1rem; height: auto; max-height: 150px;">
             <input type="checkbox" name="confirmed_no_alphabet_affiliation" id="confirmed_no_alphabet_affiliation" ng-model="auth.regUser.confirmed_no_alphabet_affiliation" />
             <label for="confirmed_no_alphabet_affiliation">I am not associated with OpenCV.org, OpenCV.AI, OpenCV University (Big Vision LLC), Alphabet, Orbbec, or the organizers of the BOP Challenge. Please note that if you are affiliated with any of the mentioned organizations, you can still participate in the challenge but will not be eligible for prizes.</label>
         </div>
         <!-- Subscribe to Challenge notification checkbox -->
-        <div class="input-field align-left">
+        <div class="input-field align-left" style="position: relative; margin-bottom: 1rem; height: auto; max-height: 150px;">
             <input type="checkbox" name="receive_participated_challenge_updates" id="receive_participated_challenge_updates" ng-model="auth.regUser.receive_participated_challenge_updates" required/>
             <label for="receive_participated_challenge_updates">(Mandatory) I agree to receive email notifications regarding updates, news, and information about this challenge.</label>
             <div class="wrn-msg text-highlight" ng-messages="signupForm.receive_participated_challenge_updates.$error" ng-if="signupForm.receive_participated_challenge_updates.$touched || signupForm.$submitted">
@@ -83,7 +83,7 @@
             </div>
         </div>
         <!-- Subscribe to OpenCV newsletter checkbox -->
-        <div class="input-field align-left">
+        <div class="input-field align-left" style="position: relative; margin-bottom: 1rem; height: auto; max-height: 150px;">
             <input type="checkbox" name="recieve_newsletter" id="recieve_newsletter" ng-model="auth.regUser.recieve_newsletter" />
             <label for="recieve_newsletter">Subscribe to the OpenCV newsletter</label>
         </div>
