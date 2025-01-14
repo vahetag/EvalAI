@@ -144,3 +144,5 @@ warnings.filterwarnings(
     RuntimeWarning,
     r"django\.db\.models\.fields",
 )
+
+print("CELERY_QUEUE_NAME", os.environ.get("CELERY_QUEUE_NAME", None))
