@@ -937,7 +937,7 @@
                 var details = response.data;
                 vm.phaseSplits = details;
                 if (details.length == 0) {
-                    vm.isChallengeLeaderboardPrivate = true;    
+                    vm.isChallengeLeaderboardPrivate = true; 
                 }
                 for(var i=0; i<details.length; i++) {
                     if (details[i].visibility !== challengePhaseVisibility.public) {
@@ -947,12 +947,6 @@
                     vm.isMultiMetricLeaderboardEnabled[vm.phaseSplits[i].id] = vm.phaseSplits[i].is_multi_metric_leaderboard;
                     vm.phaseSplitLeaderboardSchema[vm.phaseSplits[i].id] = vm.phaseSplits[i].leaderboard_schema;
                 }
-
-                // Automatically load the first phase split
-                if (details.length > 0) {
-                    vm.getLeaderboard(details[0].id); 
-                }
-
                 utilities.hideLoader();
             },
             onError: function(response) {
@@ -1052,13 +1046,7 @@
             }, 10000);
         };
 
-        // Modify the getLeaderboard function to handle default phase selection
         vm.getLeaderboard = function(phaseSplitId) {
-            // If no phase is selected and phases exist, use the first phase
-            if (!phaseSplitId && vm.phaseSplits && vm.phaseSplits.length > 0) {
-                phaseSplitId = vm.phaseSplits[0].id;
-            }
-
             vm.stopLeaderboard = function() {
                 $interval.cancel(vm.poller);
             };
@@ -3131,16 +3119,6 @@
                 default:
                   return 'trophy-black'; // Default size, change this according to your preference
               }
-        };
-
-        // Add a new function to handle tab changes
-        vm.onLeaderboardTabSelected = function() {
-            // Add a small delay to ensure phaseSplits is loaded
-            $timeout(function() {
-                if (vm.phaseSplits && vm.phaseSplits.length > 0) {
-                    vm.getLeaderboard(vm.phaseSplits[0].id);
-                }
-            }, 100);
         };
 
     }
