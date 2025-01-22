@@ -155,7 +155,7 @@
         this.getEnvironment = function () {
             switch (EnvironmentConfig.API) {
                 case "http://locahost:8000/": return "local";
-                case "https://staging.eval.ai/api/": return "staging";
+                case "https://bpcstaging.opencv.org/api/": return "staging";
                 case "https://bpc.opencv.org/api/": return "production";
                 default: return "other";
             }

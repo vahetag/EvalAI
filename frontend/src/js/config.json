@@ -6,7 +6,7 @@
     },
     "staging": {
         "EnvironmentConfig": {
-            "API": "https://staging.eval.ai/api/"
+            "API": "https://bpcstaging.opencv.org/api/"
         }
     },
     "production": {
