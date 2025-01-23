@@ -43,7 +43,7 @@ task_definition = """
                 }},
                 {{
                   "name": "DJANGO_SETTINGS_MODULE",
-                  "value": "settings.{ENV}"
+                  "value": "{DJANGO_SETTINGS_MODULE}"
                 }},
                 {{
                   "name": "DEBUG",
@@ -302,7 +302,7 @@ container_definition_submission_worker = """
         }},
         {{
             "name": "DJANGO_SETTINGS_MODULE",
-            "value": "settings.{ENV}"
+            "value": "{DJANGO_SETTINGS_MODULE}"
         }},
         {{
             "name": "DEBUG",
