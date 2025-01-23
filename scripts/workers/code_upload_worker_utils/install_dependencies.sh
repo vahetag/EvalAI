@@ -8,6 +8,7 @@ echo "### AWS CLI Installed"
 
 aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
 aws configure set aws_secret_access $AWS_SECRET_ACCESS_KEY
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
 aws configure set default.region $AWS_DEFAULT_REGION
 echo "### AWS CLI Configured"
 
@@ -45,7 +46,17 @@ echo "### Container Insights Installed"
 # Setup EFS as persistent volume
 kubectl apply -k "github.com/kubernetes-sigs/aws-efs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=release-1.7"
 kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.25"
-cat /code/scripts/workers/code_upload_worker_utils/persistent_volume.yaml | sed "s/{{EFS_ID}}/$EFS_ID/" | kubectl apply -f -
+
+# Using STATIC PVC, PV, StorageClass
+# https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/examples/kubernetes/static_provisioning
+# # If you want to update persistent_volume_storage_class.yaml file.
+# # Either delete the old one or rename and use new one with new name and change the reference in other yaml file as well.
+# kubectl delete pvc efs-claim``
+# kubectl delete pv efs-pv
+# kubectl delete storageclass efs-sc
+
+cat ./scripts/workers/code_upload_worker_utils/persistent_volume.yaml | sed "s/{{EFS_ID}}/$EFS_ID/" | kubectl apply -f -
+
 kubectl apply -f /code/scripts/workers/code_upload_worker_utils/persistent_volume_claim.yaml
 kubectl apply -f /code/scripts/workers/code_upload_worker_utils/persistent_volume_storage_class.yaml
 
@@ -60,6 +71,15 @@ sleep 120s;
 # echo "### Setting up Cilium Network Policy..."
 # cat /code/scripts/workers/code_upload_worker_utils/network_policies.yaml | sed "s/{{EVALAI_DNS}}/$EVALAI_DNS/" | kubectl apply -f -
 # echo "### Cilium EvalAI Network Policy Installed"
+
+# --- Load Certificate Data into Environment Variable ---
+# Retrieve the base64-encoded CA data from the EKS cluster and store it in the CERTIFICATE variable.
+export CERTIFICATE=$(aws eks describe-cluster \
+    --name "$CLUSTER_NAME" \
+    --region "$AWS_DEFAULT_REGION" \
+    --query "cluster.certificateAuthority.data" \
+    --output text)
+echo "### Certificate Data loaded into CERTIFICATE variable"
 
 # Set ssl-certificate
 echo $CERTIFICATE | base64 --decode > scripts/workers/certificate.crt
