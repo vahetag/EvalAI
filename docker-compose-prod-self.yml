@@ -43,16 +43,49 @@ services:
       - /code/node_modules
       - /code/bower_components
 
-  # worker:
-  #   env_file:
-  #     - docker/prod_self/docker.env
+  celery:
+    env_file:
+      - docker/prod_self/docker.env
+    build:
+      context: ./
+      dockerfile: docker/prod_self/celery/Dockerfile
+    depends_on:
+      - django
+    # volumes:
+    #   - .:/code
+    # logging:
+    #   driver: awslogs
+    #   options:
+    #     awslogs-region: ${AWS_DEFAULT_REGION}
+    #     awslogs-group: celery_production
+    #     awslogs-create-group: "true"  
+
+  worker:
+    env_file:
+      - docker/prod_self/docker.env
+    build:
+      context: ./
+      dockerfile: docker/prod_self/worker/Dockerfile
+    # depends_on:
+    #   - django
+
+  code-upload-worker:
+    env_file:
+      - docker/prod_self/docker.env
+      - docker/prod_self/docker_code_upload_worker.env
+    build:
+      context: ./
+      dockerfile: docker/prod_self/code-upload-worker/Dockerfile
+
+
+  # remote-worker:
   #   build:
   #     context: ./
   #     dockerfile: docker/prod_self/worker/Dockerfile
-  #   depends_on:
-  #     - django
-  #   volumes:
-  #     - .:/code
+  #   command: ["python", "-m", "scripts.workers.remote_submission_worker"]
+  #   env_file:
+  #     - docker/prod_self/docker_remote_worker.env
+
 
   # worker_py3_8:
   #   env_file:
