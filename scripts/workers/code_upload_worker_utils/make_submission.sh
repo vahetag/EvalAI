@@ -14,6 +14,8 @@ else
     exit 0
 fi
 echo "Submitting file to EvalAI..."
+echo "make_submission.sh :: making curl request"
+echo "$curl_request"
 eval $curl_request
 echo "\nFile submitted successfully"
 echo $(date) > "$SUBMISSION_PATH/completed.txt"

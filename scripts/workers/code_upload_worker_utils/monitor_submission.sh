@@ -19,9 +19,12 @@ do
     time_elapsed=$(( $time_elapsed + $time_interval ))
     if [ $time_elapsed -le $SUBMISSION_TIME_LIMIT ]
     then
+        echo "monitor_submission.sh sleeping for $time_interval"
         sleep $time_interval
     fi
+    echo "monitor_submission.sh $time_interval"
 done
+echo "monitor_submission.sh :: Outside while loop for some reason"
 url="$EVALAI_API_SERVER/api/jobs/challenge/$CHALLENGE_PK/update_submission/"
 submission_data="{\
     \"challenge_phase\": $PHASE_PK,\
@@ -32,7 +35,11 @@ submission_data="{\
     \"result\": \"[]\",\
     \"metadata\": \"\"\
 }"
+
+echo "monitor_submission.sh :: making failed curl request"
 curl_request="curl --location --request PUT '$url' -H 'Content-Type: application/json' --header 'Authorization: Bearer $AUTH_TOKEN' -d '$submission_data'"
+echo "monitor_submission.sh :: curl request :: $curl_request"
+
 eval $curl_request
 echo "\nFile submission failed."
 echo "Monitoring submission completed."
