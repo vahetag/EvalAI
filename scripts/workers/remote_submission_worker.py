@@ -26,9 +26,15 @@ COMPUTE_DIRECTORY_PATH = join(BASE_TEMP_DIR, "compute")
 logger = logging.getLogger(__name__)
 
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
-DJANGO_SERVER = os.environ.get("DJANGO_SERVER", "localhost")
-DJANGO_SERVER_PORT = os.environ.get("DJANGO_SERVER_PORT", "8000")
-QUEUE_NAME = os.environ.get("QUEUE_NAME", "evalai_submission_queue")
+# DJANGO_SERVER = os.environ.get("DJANGO_SERVER", "localhost")
+# DJANGO_SERVER_PORT = os.environ.get("DJANGO_SERVER_PORT", "8000")
+EVALAI_API_SERVER = os.environ.get(
+    "EVALAI_API_SERVER", "http://localhost:8000"
+)
+QUEUE_NAME = os.environ.get("QUEUE_NAME", None)
+
+if not QUEUE_NAME:
+    QUEUE_NAME = "evalai_submission_queue"
 
 CHALLENGE_DATA_BASE_DIR = join(COMPUTE_DIRECTORY_PATH, "challenge_data")
 SUBMISSION_DATA_BASE_DIR = join(COMPUTE_DIRECTORY_PATH, "submission_files")
@@ -164,7 +170,7 @@ def create_dir_as_python_package(directory):
 
 
 def return_url_per_environment(url):
-    base_url = "http://{0}:{1}".format(DJANGO_SERVER, DJANGO_SERVER_PORT)
+    base_url = "{0}".format(EVALAI_API_SERVER)
     url = "{0}{1}".format(base_url, url)
     return url
 
@@ -326,71 +332,89 @@ def extract_submission_data(submission_pk):
 
 
 def get_request_headers():
-    headers = {"Authorization": "Token {}".format(AUTH_TOKEN)}
+    headers = {"Authorization": "Bearer {}".format(AUTH_TOKEN)}
     return headers
-
 
 def make_request(url, method, data=None):
     headers = get_request_headers()
-    if method == "GET":
-        try:
-            response = requests.get(url=url, headers=headers)
-            response.raise_for_status()
-        except requests.exceptions.RequestException:
-            logger.info(
-                "The worker is not able to establish connection with EvalAI"
-            )
-            raise
-        return response.json()
+    try:
+        response = requests.request(
+            method=method, url=url, headers=headers, data=data
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        logger.info(
+            "The worker is not able to establish connection with EvalAI"
+        )
+        raise
+    # print("make_request url", url)
+    return response.json()
 
-    elif method == "PUT":
-        try:
-            response = requests.put(url=url, headers=headers, data=data)
-            response.raise_for_status()
-        except requests.exceptions.RequestException:
-            logger.exception(
-                "The worker is not able to establish connection with EvalAI due to {}"
-                % (response.json())
-            )
-            raise
-        except requests.exceptions.HTTPError:
-            logger.exception(
-                f"The request to URL {url} is failed due to {response.json()}"
-            )
-            raise
-        return response.json()
+# def get_request_headers():
+#     headers = {"Authorization": "Token {}".format(AUTH_TOKEN)}
+#     return headers
 
-    elif method == "PATCH":
-        try:
-            response = requests.patch(url=url, headers=headers, data=data)
-            response.raise_for_status()
-        except requests.exceptions.RequestException:
-            logger.info(
-                "The worker is not able to establish connection with EvalAI"
-            )
-            raise
-        except requests.exceptions.HTTPError:
-            logger.info(
-                f"The request to URL {url} is failed due to {response.json()}"
-            )
-            raise
-        return response.json()
+# def make_request(url, method, data=None):
+#     headers = get_request_headers()
+#     if method == "GET":
+#         try:
+#             response = requests.get(url=url, headers=headers)
+#             response.raise_for_status()
+#         except requests.exceptions.RequestException:
+#             logger.info(
+#                 "The worker is not able to establish connection with EvalAI"
+#             )
+#             raise
+#         return response.json()
 
-    elif method == "POST":
-        try:
-            response = requests.post(url=url, headers=headers, data=data)
-            response.raise_for_status()
-        except requests.exceptions.RequestException:
-            logger.info(
-                "The worker is not able to establish connection with EvalAI"
-            )
-            raise
-        except requests.exceptions.HTTPError:
-            logger.info(
-                f"The request to URL {url} is failed due to {response.json()}"
-            )
-            raise
-        return response.json()
+#     elif method == "PUT":
+#         try:
+#             response = requests.put(url=url, headers=headers, data=data)
+#             response.raise_for_status()
+#         except requests.exceptions.RequestException:
+#             logger.exception(
+#                 "The worker is not able to establish connection with EvalAI due to {}"
+#                 % (response.json())
+#             )
+#             raise
+#         except requests.exceptions.HTTPError:
+#             logger.exception(
+#                 f"The request to URL {url} is failed due to {response.json()}"
+#             )
+#             raise
+#         return response.json()
+
+#     elif method == "PATCH":
+#         try:
+#             response = requests.patch(url=url, headers=headers, data=data)
+#             response.raise_for_status()
+#         except requests.exceptions.RequestException:
+#             logger.info(
+#                 "The worker is not able to establish connection with EvalAI"
+#             )
+#             raise
+#         except requests.exceptions.HTTPError:
+#             logger.info(
+#                 f"The request to URL {url} is failed due to {response.json()}"
+#             )
+#             raise
+#         return response.json()
+
+#     elif method == "POST":
+#         try:
+#             response = requests.post(url=url, headers=headers, data=data)
+#             response.raise_for_status()
+#         except requests.exceptions.RequestException:
+#             logger.info(
+#                 "The worker is not able to establish connection with EvalAI"
+#             )
+#             raise
+#         except requests.exceptions.HTTPError:
+#             logger.info(
+#                 f"The request to URL {url} is failed due to {response.json()}"
+#             )
+#             raise
+#         return response.json()
 
 
 def get_message_from_sqs_queue():
