@@ -23,7 +23,7 @@ IS_STAGING_FLAG = os.environ.get("IS_STAGING", True)
 IS_STAGING = True if IS_STAGING_FLAG == "True" else False 
 
 if not IS_STAGING:
-    ALLOWED_HOSTS = ["bpc.opencv.org",]
+    ALLOWED_HOSTS = ["bpc.opencv.org", "35.85.190.203"]
     CORS_ORIGIN_WHITELIST = (
         "http://bpc.opencv.org",
         "https://bpc.opencv.org",
@@ -33,14 +33,15 @@ if not IS_STAGING:
         "http://127.0.0.1:8000",  # Django development server (IPv4)
     )
 else:
-    ALLOWED_HOSTS = ["bpcstaging.opencv.org",]
+    ALLOWED_HOSTS = ["bpcstaging.opencv.org", "34.212.81.232"]
     CORS_ORIGIN_WHITELIST = (
         "http://bpcstaging.opencv.org",
         "https://bpcstaging.opencv.org",
         "https://opencv-bpc-comp-2025.s3-us-west-2.amazonaws.com",
         "https://opencv-bpc-comp-2025.s3.amazonaws.com",
-        "http://localhost:8000",  # Django development server
-        "http://127.0.0.1:8000",  # Django development server (IPv4)
+        # "http://localhost:8000",  # Django development server
+        # "http://127.0.0.1:8000",  # Django development server (IPv4)
+        # "http://django:8000",  # Django development server (IPv4)
     )
     
 
@@ -124,6 +125,7 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_HOST_USER = "apikey"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+SENDGRID_API_KEY = os.environ.get("EMAIL_HOST_PASSWORD")
 
 # Hide API Docs on production environment
 REST_FRAMEWORK_DOCS = {"HIDE_DOCS": True}
