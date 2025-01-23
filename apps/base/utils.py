@@ -130,10 +130,11 @@ def send_email(
         to_list.add_to(to_email)
         mail.add_personalization(to_list)
         sg.client.mail.send.post(request_body=mail.get())
-    except Exception:
+    except Exception as e:
         logger.warning(
             "Cannot make sendgrid call. Please check if SENDGRID_API_KEY is present."
         )
+        logger.warning(f"Exception raised: {type(e).__name__}: {e}")
     return
 
 
