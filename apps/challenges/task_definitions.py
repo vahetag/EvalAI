@@ -128,7 +128,7 @@ task_definition = """
                 "logDriver": "awslogs",
                 "options": {{
                     "awslogs-group": "{log_group_name}",
-                    "awslogs-region": "us-east-1",
+                    "awslogs-region": "{AWS_REGION}",
                     "awslogs-stream-prefix": "{queue_name}",
                     "awslogs-create-group": "true",
                 }},
@@ -152,7 +152,7 @@ task_definition_code_upload_worker = """
     "executionRoleArn":"{EXECUTION_ROLE_ARN}",
     "networkMode":"awsvpc",
     "containerDefinitions":[
-        {{
+    {{
             "name": "{code_upload_container_name}",
             "image": "{CODE_UPLOAD_WORKER_IMAGE}",
             "essential": True,
@@ -224,7 +224,7 @@ task_definition_code_upload_worker = """
                 "logDriver": "awslogs",
                 "options": {{
                     "awslogs-group": "{log_group_name}",
-                    "awslogs-region": "us-east-1",
+                    "awslogs-region": "{AWS_REGION}",
                     "awslogs-stream-prefix": "{queue_name}",
                     "awslogs-create-group": "true",
                 }},
@@ -387,7 +387,7 @@ container_definition_submission_worker = """
         "logDriver": "awslogs",
         "options": {{
             "awslogs-group": "{log_group_name}",
-            "awslogs-region": "us-east-1",
+            "awslogs-region": "{AWS_REGION}",
             "awslogs-stream-prefix": "{queue_name}",
             "awslogs-create-group": "true",
         }},
@@ -467,7 +467,7 @@ container_definition_code_upload_worker = """
         "logDriver": "awslogs",
         "options": {{
             "awslogs-group": "{log_group_name}",
-            "awslogs-region": "us-east-1",
+            "awslogs-region": "{AWS_REGION}",
             "awslogs-stream-prefix": "{queue_name}",
             "awslogs-create-group": "true",
         }},
