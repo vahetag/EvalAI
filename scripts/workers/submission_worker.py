@@ -26,7 +26,7 @@ from django.utils import timezone
 
 from settings.common import SQS_RETENTION_PERIOD
 
-from .statsd_utils import increment_and_push_metrics_to_statsd
+# from .statsd_utils import increment_and_push_metrics_to_statsd
 
 # all challenge and submission will be stored in temp directory
 BASE_TEMP_DIR = tempfile.mkdtemp(prefix='tmp')
@@ -905,7 +905,7 @@ def main():
                         process_submission_callback(message.body)
                         # Let the queue know that the message is processed
                         message.delete()
-                        increment_and_push_metrics_to_statsd(queue_name, is_remote)
+                        # increment_and_push_metrics_to_statsd(queue_name, is_remote)
                 else:
                     logger.info(
                         "{} Processing message body: {}".format(
@@ -915,7 +915,7 @@ def main():
                     process_submission_callback(message.body)
                     # Let the queue know that the message is processed
                     message.delete()
-                    increment_and_push_metrics_to_statsd(queue_name, is_remote)
+                    # increment_and_push_metrics_to_statsd(queue_name, is_remote)
             else:
                 current_running_submissions_count = Submission.objects.filter(
                     challenge_phase__challenge=challenge.id, status="running"
@@ -934,7 +934,7 @@ def main():
                     process_submission_callback(message.body)
                     # Let the queue know that the message is processed
                     message.delete()
-                    increment_and_push_metrics_to_statsd(queue_name, is_remote)
+                    # increment_and_push_metrics_to_statsd(queue_name, is_remote)
         if killer.kill_now:
             break
         time.sleep(0.1)

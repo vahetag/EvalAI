@@ -104,7 +104,7 @@ def publish_submission_message(message):
         "queue_name:%s" % queue_name,
         "is_remote:%d" % int(is_remote),
     ]
-    increment_statsd_counter(NUM_SUBMISSIONS_IN_QUEUE, submission_metric_tags, 1)
+    # increment_statsd_counter(NUM_SUBMISSIONS_IN_QUEUE, submission_metric_tags, 1)
     response = queue.send_message(MessageBody=json.dumps(message))
     # send slack notification
     if slack_url:

@@ -10,7 +10,8 @@ from kubernetes import client
 
 # TODO: Add exception in all the commands
 from kubernetes.client.rest import ApiException
-from statsd_utils import increment_and_push_metrics_to_statsd
+
+# from statsd_utils import increment_and_push_metrics_to_statsd
 from worker_utils import EvalAI_Interface
 
 
@@ -775,12 +776,7 @@ def main():
                                 "No job name found corresponding to submission: {} with status: {}."
                                 "Deleting it from queue.".format(submission_pk, submission.get("status"))
                             )
-                        evalai.delete_message_from_sqs_queue(
-                            message_receipt_handle
-                        )
-                        increment_and_push_metrics_to_statsd(
-                            QUEUE_NAME, is_remote
-                        )
+                        # # increment_and_push_metrics_to_statsd(
                     except Exception as e:
                         logger.exception(
                             "Failed to delete submission job: {}".format(e)
@@ -788,10 +784,10 @@ def main():
                         # Delete message from sqs queue to avoid re-triggering job delete
                         evalai.delete_message_from_sqs_queue(
                             message_receipt_handle
-                        )
-                        increment_and_push_metrics_to_statsd(
-                            QUEUE_NAME, is_remote
-                        )
+
+                        # increment_and_push_metrics_to_statsd(
+                        #     QUEUE_NAME, is_remote
+                        # )
                 elif submission.get("status") == "queued":
                     job_name = submission.get("job_name")[-1]
                     pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
