@@ -34,7 +34,7 @@ from accounts.models import JwtToken
 logger = logging.getLogger(__name__)
 
 DJANGO_SETTINGS_MODULE = os.environ.get("DJANGO_SETTINGS_MODULE")
-ENV = DJANGO_SETTINGS_MODULE.split(".")[-1]
+ENV = os.environ.get("ENVIRONMENT")
 EVALAI_DNS = os.environ.get("SERVICE_DNS")
 aws_keys = {
     "AWS_ACCOUNT_ID": os.environ.get("AWS_ACCOUNT_ID", "x"),
@@ -166,8 +166,8 @@ def register_task_def_by_challenge_pk(client, queue_name, challenge):
     Returns:
     dict: A dict of the task definition and it's ARN if succesful, and an error dictionary if not
     """
-    container_name = "worker_{}".format(queue_name)
-    code_upload_container_name = "code_upload_worker_{}".format(queue_name)
+    container_name = "{}_worker_{}".format(ENV, queue_name)
+    code_upload_container_name = "{}_code_upload_worker_{}".format(ENV, queue_name)
     worker_cpu_cores = challenge.worker_cpu_cores
     worker_memory = challenge.worker_memory
     ephemeral_storage = challenge.ephemeral_storage
@@ -222,13 +222,14 @@ def register_task_def_by_challenge_pk(client, queue_name, challenge):
                     container_definition_submission_worker.format(
                         queue_name=queue_name,
                         container_name=container_name,
-                        ENV=ENV,
+                        # ENV=ENV,
+                        DJANGO_SETTINGS_MODULE=DJANGO_SETTINGS_MODULE,
                         challenge_pk=challenge.pk,
                         log_group_name=log_group_name,
                         AWS_SES_REGION_NAME=AWS_SES_REGION_NAME,
                         AWS_SES_REGION_ENDPOINT=AWS_SES_REGION_ENDPOINT,
                         **updated_settings,
-                        **aws_keys,
+                        **challenge_aws_keys,
                     )
                 )
                 definition = task_definition_static_code_upload_worker.format(
@@ -244,7 +245,8 @@ def register_task_def_by_challenge_pk(client, queue_name, challenge):
                 definition = task_definition_code_upload_worker.format(
                     queue_name=queue_name,
                     code_upload_container_name=code_upload_container_name,
-                    ENV=ENV,
+                    # ENV=ENV,
+                    DJANGO_SETTINGS_MODULE=DJANGO_SETTINGS_MODULE,
                     challenge_pk=challenge.pk,
                     auth_token=token.refresh_token,
                     cluster_name=cluster_name,
@@ -332,12 +334,19 @@ def create_service_by_challenge_pk(client, challenge, client_token):
             if response["ResponseMetadata"]["HTTPStatusCode"] != HTTPStatus.OK:
                 return response
         task_def_arn = challenge.task_def_arn
+        
+        cluster_meta = get_code_upload_setup_meta_for_challenge(challenge_pk=challenge.id)
+        updated_VPC_DICT = {
+            "SUBNET_1":cluster_meta["SUBNET_1"],
+            "SUBNET_2":cluster_meta["SUBNET_2"],
+            "SUBNET_SECURITY_GROUP":cluster_meta["SUBNET_SECURITY_GROUP"],
+        } 
         definition = service_definition.format(
             CLUSTER=COMMON_SETTINGS_DICT["CLUSTER"],
             service_name=service_name,
             task_def_arn=task_def_arn,
             client_token=client_token,
-            **VPC_DICT,
+            **updated_VPC_DICT,
         )
         definition = eval(definition)
         try:
@@ -1529,7 +1538,7 @@ def create_eks_cluster_subnets(challenge):
         subnet_ids = []
         response = client.create_subnet(
             CidrBlock=challenge_obj.subnet_1_cidr,
-            AvailabilityZone="us-east-1a",
+            AvailabilityZone="us-west-2a",
             VpcId=vpc_ids[0],
         )
         subnet_1_id = response["Subnet"]["SubnetId"]
@@ -1537,7 +1546,7 @@ def create_eks_cluster_subnets(challenge):
 
         response = client.create_subnet(
             CidrBlock=challenge_obj.subnet_2_cidr,
-            AvailabilityZone="us-east-1b",
+            AvailabilityZone="us-west-2b",
             VpcId=vpc_ids[0],
         )
         subnet_2_id = response["Subnet"]["SubnetId"]
@@ -1604,6 +1613,12 @@ def create_eks_cluster_subnets(challenge):
         efs_creation_token = str(uuid.uuid4())[:64]
         response = efs_client.create_file_system(
             CreationToken=efs_creation_token,
+            Tags=[
+                {
+                    "Key": "Name",
+                    "Value": f"bpc-code-upload-challenge-efs-{environment_suffix}",
+                },
+            ]
         )
         efs_id = response["FileSystemId"]
 
@@ -1665,7 +1680,7 @@ def create_eks_cluster(challenge):
         try:
             response = client.create_cluster(
                 name=cluster_name,
-                version="1.29",
+                version="1.30",
                 roleArn=cluster_meta["EKS_CLUSTER_ROLE_ARN"],
                 resourcesVpcConfig={
                     "subnetIds": [
