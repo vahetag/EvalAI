@@ -1139,6 +1139,7 @@ def update_submission(request, challenge_pk):
             Submission.FAILED,
             Submission.CANCELLED,
             Submission.FINISHED,
+            Submission.EVALUATING,
         ]:
             response_data = {"error": "Sorry, submission status is invalid"}
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)

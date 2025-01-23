@@ -52,6 +52,7 @@ class Submission(TimeStampedModel):
     SUBMITTING = "submitting"
     ARCHIVED = "archived"
     PARTIALLY_EVALUATED = "partially_evaluated"
+    EVALUATING = "evaluating"
 
     STATUS_OPTIONS = (
         (SUBMITTED, SUBMITTED),
@@ -64,6 +65,7 @@ class Submission(TimeStampedModel):
         (SUBMITTING, SUBMITTING),
         (ARCHIVED, ARCHIVED),
         (PARTIALLY_EVALUATED, PARTIALLY_EVALUATED),
+        (EVALUATING, EVALUATING),
     )
 
     participant_team = models.ForeignKey(
