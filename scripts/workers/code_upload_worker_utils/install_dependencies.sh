@@ -63,6 +63,14 @@ sleep 120s;
 
 # Set ssl-certificate
 echo $CERTIFICATE | base64 --decode > scripts/workers/certificate.crt
+echo "### Certificate Authority file created at scripts/workers/certificate.crt"
+
+
+# Install cluster autoscaler 
+cat ./scripts/workers/code_upload_worker_utils/cluster-autoscaler-autodiscover.yaml | sed "s/{{CLUSTER_NAME}}/$CLUSTER_NAME/" | kubectl apply -f -
+
+kubectl patch deployment cluster-autoscaler -n kube-system -p '{"spec":{"template": {"metadata": {"annotations": {"cluster-autoscaler.kubernetes.io/safe-to-evict": "false"}}}}}'
+
 
 # Running Submission Worker
 chmod +x scripts/workers/code_upload_submission_worker.py
