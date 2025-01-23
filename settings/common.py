@@ -15,6 +15,7 @@ import os
 import sys
 
 from datetime import timedelta
+import urllib
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -211,8 +212,12 @@ AWS_SECRET_ACCESS_KEY = os.environ.get(
 AWS_REGION = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
 
 # Broker url for celery
-CELERY_BROKER_URL = "sqs://%s:%s@" % (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+CELERY_BROKER_URL = 'sqs://{0}:{1}@'.format(
+    urllib.parse.quote(AWS_ACCESS_KEY_ID, safe=''),
+    urllib.parse.quote(AWS_SECRET_ACCESS_KEY, safe='')
+)
 
+# print("CELERY_BROKER_URL", CELERY_BROKER_URL)
 # CORS Settings
 CORS_ORIGIN_ALLOW_ALL = True
 
