@@ -62,11 +62,13 @@ kubectl apply -f /code/scripts/workers/code_upload_worker_utils/persistent_volum
 
 # Install cilium
 # Cilium is being used to provide networking and network policy
-kubectl create -f https://raw.githubusercontent.com/cilium/cilium/v1.9/install/kubernetes/quick-install.yaml
+# kubectl create -f https://raw.githubusercontent.com/cilium/cilium/v1.9/install/kubernetes/quick-install.yaml
+# using local yaml to fix: Warning: spec.template.metadata.annotations[scheduler.alpha.kubernetes.io/critical-pod]: non-functional in v1.16+; use the "priorityClassName" field instead
+kubectl create -f /code/scripts/workers/code_upload_worker_utils/cilium-quick-install.yaml
+
 echo "### Cilium Installed"
 
 sleep 120s;
-
 # Apply cilium network policy
 # echo "### Setting up Cilium Network Policy..."
 # cat /code/scripts/workers/code_upload_worker_utils/network_policies.yaml | sed "s/{{EVALAI_DNS}}/$EVALAI_DNS/" | kubectl apply -f -
