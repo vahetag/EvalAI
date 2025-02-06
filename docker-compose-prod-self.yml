@@ -19,7 +19,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - statsd-exporter
+      # - statsd-exporter
       - memcached
     volumes:
       - .:/code
@@ -49,8 +49,8 @@ services:
     build:
       context: ./
       dockerfile: docker/prod_self/celery/Dockerfile
-    depends_on:
-      - django
+    # depends_on:
+    #   - django
     # volumes:
     #   - .:/code
     # logging:
