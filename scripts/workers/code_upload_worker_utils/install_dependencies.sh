@@ -98,7 +98,7 @@ echo "### Setting up Nvidia k8s-device-plugin..."
 kubectl apply -f /code/scripts/workers/code_upload_worker_utils/nvidia-device-plugin-latest.yml
 echo "### Installed Nvidia k8s-device-plugin"
 
-# To uninstall: helm uninstall nvdp --namespace nvidia-device-plugin
+# To uninstall: kubectl delete -f /code/scripts/workers/code_upload_worker_utils/nvidia-device-plugin-latest.yml
 
 # --- Load Certificate Data into Environment Variable ---
 # Retrieve the base64-encoded CA data from the EKS cluster and store it in the CERTIFICATE variable.
