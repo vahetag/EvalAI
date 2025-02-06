@@ -31,6 +31,7 @@ echo "### Kubectl Installed"
 # Install aws-container-insights
 # Create amazon-cloudwatch namespace
 kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cloudwatch-namespace.yaml
+
 # Create configmap for fluent bit
 kubectl create configmap fluent-bit-cluster-info \
 --from-literal=cluster.name=$CLUSTER_NAME \
@@ -39,8 +40,9 @@ kubectl create configmap fluent-bit-cluster-info \
 --from-literal=read.head='On' \
 --from-literal=read.tail='Off' \
 --from-literal=logs.region=$AWS_DEFAULT_REGION -n amazon-cloudwatch
-# Use FluentD compatible FluentBit insights
-kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit-compatible.yaml
+
+# Use FluentBit insights
+kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit.yaml
 echo "### Container Insights Installed"
 
 # Setup EFS as persistent volume
@@ -56,23 +58,47 @@ kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernete
 # kubectl delete storageclass efs-sc
 
 cat ./scripts/workers/code_upload_worker_utils/persistent_volume.yaml | sed "s/{{EFS_ID}}/$EFS_ID/" | kubectl apply -f -
-
 kubectl apply -f /code/scripts/workers/code_upload_worker_utils/persistent_volume_claim.yaml
 kubectl apply -f /code/scripts/workers/code_upload_worker_utils/persistent_volume_storage_class.yaml
 
-# Install cilium
+################################## 
+# Install cilium - Discarded
 # Cilium is being used to provide networking and network policy
 # kubectl create -f https://raw.githubusercontent.com/cilium/cilium/v1.9/install/kubernetes/quick-install.yaml
 # using local yaml to fix: Warning: spec.template.metadata.annotations[scheduler.alpha.kubernetes.io/critical-pod]: non-functional in v1.16+; use the "priorityClassName" field instead
-kubectl create -f /code/scripts/workers/code_upload_worker_utils/cilium-quick-install.yaml
+# kubectl create -f /code/scripts/workers/code_upload_worker_utils/cilium-quick-install.yaml
+# Apply cilium network policy
+# cat /code/scripts/workers/code_upload_worker_utils/network_policies.yaml | sed "s/{{EVALAI_DNS}}/$EVALAI_DNS/" | kubectl apply -f -
+################################## 
 
+# Install helm 
+echo "Installing 'helm'"
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+echo "'helm' installed."
+
+# Update helm repos
+echo "Update 'helm' installed."
+helm repo add cilium https://helm.cilium.io/
+helm repo update
+echo "'helm' repo updated."
+
+# Install cilium 
+helm upgrade --install cilium cilium/cilium --namespace kube-system --version 1.16.6 --set operator.replicas=1 --set hubble.relay.enabled=false --set hubble.ui.enabled=false
 echo "### Cilium Installed"
 
-sleep 120s;
-# Apply cilium network policy
-# echo "### Setting up Cilium Network Policy..."
-# cat /code/scripts/workers/code_upload_worker_utils/network_policies.yaml | sed "s/{{EVALAI_DNS}}/$EVALAI_DNS/" | kubectl apply -f -
-# echo "### Cilium EvalAI Network Policy Installed"
+echo "### Setting up Cilium Network Policy..."
+kubectl apply -f /code/scripts/workers/code_upload_worker_utils/network_policies.yaml
+echo "### Cilium EvalAI Network Policy Installed"
+# To uninstall: helm uninstall cilium --namespace kube-system
+sleep 10s;
+
+echo "### Setting up Nvidia k8s-device-plugin..."
+kubectl apply -f /code/scripts/workers/code_upload_worker_utils/nvidia-device-plugin-latest.yml
+echo "### Installed Nvidia k8s-device-plugin"
+
+# To uninstall: helm uninstall nvdp --namespace nvidia-device-plugin
 
 # --- Load Certificate Data into Environment Variable ---
 # Retrieve the base64-encoded CA data from the EKS cluster and store it in the CERTIFICATE variable.
@@ -90,7 +116,6 @@ echo "### Certificate Authority file created at scripts/workers/certificate.crt"
 
 # Install cluster autoscaler 
 cat ./scripts/workers/code_upload_worker_utils/cluster-autoscaler-autodiscover.yaml | sed "s/{{CLUSTER_NAME}}/$CLUSTER_NAME/" | kubectl apply -f -
-
 kubectl patch deployment cluster-autoscaler -n kube-system -p '{"spec":{"template": {"metadata": {"annotations": {"cluster-autoscaler.kubernetes.io/safe-to-evict": "false"}}}}}'
 
 

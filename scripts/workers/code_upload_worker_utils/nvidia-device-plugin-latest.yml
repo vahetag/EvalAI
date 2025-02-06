@@ -28,6 +28,8 @@ spec:
       labels:
         name: nvidia-device-plugin-ds
     spec:
+      nodeSelector:
+        k8s.amazonaws.com/accelerator-available: "true"  # Use the custom label added to the node-group
       tolerations:
       - key: nvidia.com/gpu
         operator: Exists

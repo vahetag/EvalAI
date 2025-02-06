@@ -1,23 +1,67 @@
-apiVersion: "cilium.io/v2"
+# apiVersion: "cilium.io/v2"
+# kind: CiliumNetworkPolicy
+# metadata:
+#   name: "fqdn"
+# spec:
+#   endpointSelector:
+#     matchLabels:
+#       {}
+#   egress:
+#   - toFQDNs:
+#     - matchPattern: {{EVALAI_DNS}}
+#     - matchPattern: "*.ubuntu.com"
+#   - toEndpoints:
+#     - matchLabels:
+#         "k8s:io.kubernetes.pod.namespace": kube-system
+#         "k8s:k8s-app": kube-dns
+#     toPorts:
+#     - ports:
+#       - port: "53"
+#         protocol: ANY
+#       rules:
+#         dns:
+#         - matchPattern: "*"
+
+
+apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: "fqdn"
+  name: restrict-submission-internet-access
+  namespace: default
 spec:
   endpointSelector:
     matchLabels:
-      {}
+      app: evaluation
   egress:
-  - toFQDNs:
-    - matchPattern: {{EVALAI_DNS}}
-    - matchPattern: "*.ubuntu.com"
-  - toEndpoints:
-    - matchLabels:
-        "k8s:io.kubernetes.pod.namespace": kube-system
-        "k8s:k8s-app": kube-dns
-    toPorts:
-    - ports:
-      - port: "53"
-        protocol: ANY
-      rules:
-        dns:
-        - matchPattern: "*"
+    # Allow DNS queries so that DNS resolution can work properly
+    - toEndpoints:
+        - matchLabels:
+            "k8s:io.kubernetes.pod.namespace": "kube-system"
+            "k8s:k8s-app": "kube-dns"
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    
+    # Allow egress to specific FQDNs
+    - toFQDNs:
+        - matchPattern: "*.ubuntu.com"
+        - matchName: "bpc.opencv.org"
+        - matchName: "bpcstaging.opencv.org"
+    
+    # Allow egress to internal CIDR ranges
+    - toCIDR:
+        - "10.100.0.0/16"
+        - "172.31.0.0/16"
+        - "169.254.169.254/32"
+    
+    # Allow access to the Kubernetes API server
+    - toEntities:
+        - kube-apiserver
+    
+    # Allow egress to remote nodes if needed
+    - toEntities:
+        - remote-node
