@@ -33,7 +33,7 @@ if not IS_STAGING:
         "http://127.0.0.1:8000",  # Django development server (IPv4)
     )
 else:
-    ALLOWED_HOSTS = ["bpcstaging.opencv.org", "34.212.81.232"]
+    ALLOWED_HOSTS = ["bpcstaging.opencv.org", "34.212.81.232", "ec2-34-212-81-232.us-west-2.compute.amazonaws.com"]
     CORS_ORIGIN_WHITELIST = (
         "http://bpcstaging.opencv.org",
         "https://bpcstaging.opencv.org",
