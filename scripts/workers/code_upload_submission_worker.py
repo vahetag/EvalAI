@@ -133,8 +133,8 @@ def create_config_map_object(config_map_name, file_paths):
 
 
 def create_script_config_map(config_map_name):
-    submission_script_file_path = "/code/scripts/workers/code_upload_worker_utils/make_submission.sh"
-    monitor_submission_script_path = "/code/scripts/workers/code_upload_worker_utils/monitor_submission.sh"
+    submission_script_file_path = "./scripts/workers/code_upload_worker_utils/make_submission.sh"
+    monitor_submission_script_path = "./scripts/workers/code_upload_worker_utils/monitor_submission.sh"
     script_config_map = create_config_map_object(config_map_name, [submission_script_file_path, monitor_submission_script_path])
     return script_config_map
 
@@ -157,7 +157,7 @@ def create_configmap(core_v1_api_instance, config_map):
             body=config_map,
         )
     except Exception as e:
-        print("Exception while creating configmap with error {}".format(e))
+        logger.debug("Exception while creating configmap with error {}".format(e))
         logger.exception("Exception while creating configmap with error {}".format(e))
 
 
@@ -368,7 +368,7 @@ def create_static_code_upload_submission_job_object(message, challenge):
             #     "eks.amazonaws.com/nodegroup": "Submssion-workers-8G-RAM-2",
             # },
             node_selector={
-                "eks.amazonaws.com/nodegroup": "Submission-workers-GPU-L4",
+                "eks.amazonaws.com/nodegroup": NODEGROUP,
                 "k8s.amazonaws.com/accelerator": "L4",
             },
         ),
@@ -444,7 +444,7 @@ def get_api_object(cluster_name, cluster_endpoint, challenge, evalai):
     aws_eks_api = evalai.get_aws_eks_bearer_token(challenge.get("id"))
     configuration.host = cluster_endpoint
     configuration.verify_ssl = True
-    configuration.ssl_ca_cert = "/code/scripts/workers/certificate.crt"
+    configuration.ssl_ca_cert = "./scripts/workers/certificate.crt"
     configuration.api_key["authorization"] = aws_eks_api["aws_eks_bearer_token"]
     configuration.api_key_prefix["authorization"] = "Bearer"
     api_instance = client.BatchV1Api(client.ApiClient(configuration))
@@ -456,7 +456,7 @@ def get_api_client(cluster_name, cluster_endpoint, challenge, evalai):
     aws_eks_api = evalai.get_aws_eks_bearer_token(challenge.get("id"))
     configuration.host = cluster_endpoint
     configuration.verify_ssl = True
-    configuration.ssl_ca_cert = "/code/scripts/workers/certificate.crt"
+    configuration.ssl_ca_cert = "./scripts/workers/certificate.crt"
     configuration.api_key["authorization"] = aws_eks_api["aws_eks_bearer_token"]
     configuration.api_key_prefix["authorization"] = "Bearer"
     api_instance = client.ApiClient(configuration)
@@ -468,7 +468,7 @@ def get_core_v1_api_object(cluster_name, cluster_endpoint, challenge, evalai):
     aws_eks_api = evalai.get_aws_eks_bearer_token(challenge.get("id"))
     configuration.host = cluster_endpoint
     configuration.verify_ssl = True
-    configuration.ssl_ca_cert = "/code/scripts/workers/certificate.crt"
+    configuration.ssl_ca_cert = "./scripts/workers/certificate.crt"
     configuration.api_key["authorization"] = aws_eks_api["aws_eks_bearer_token"]
     configuration.api_key_prefix["authorization"] = "Bearer"
     api_instance = client.CoreV1Api(client.ApiClient(configuration))
@@ -591,18 +591,18 @@ def update_jobs_and_send_logs(
     code_upload_environment_error = "Submission Job Failed."
     submission_error = "Submission Job Failed."
 
-    print("In update_jobs_and_send_logs")
-    print("job_name", job_name)
-    print("submission_pk", submission_pk)
-    print("challenge_pk", challenge_pk)
-    print("phase_pk", phase_pk)
-    print("message", message)
-    print("queue_name", queue_name)
+    logger.debug("In update_jobs_and_send_logs")
+    logger.debug("job_name", job_name)
+    logger.debug("submission_pk", submission_pk)
+    logger.debug("challenge_pk", challenge_pk)
+    logger.debug("phase_pk", phase_pk)
+    logger.debug("message", message)
+    logger.debug("queue_name", queue_name)
 
     try:
         pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
         if pods_list:
-            print("has pods_list")
+            logger.debug("has pods_list")
             if disable_logs:
                 code_upload_environment_error = None
                 submission_error = None
@@ -614,25 +614,25 @@ def update_jobs_and_send_logs(
                     for container in pods_list.items[0].status.container_statuses:
                         container_state_map[container.name] = container.state
 
-                    print("container_state_map", container_state_map)
+                    logger.debug("container_state_map", container_state_map)
 
                     for container_name, container_state in container_state_map.items():
                         if container_name in ["agent", "ros-participant-container", "environment"]:
                             if container_state.terminated is not None:
                                 reason = container_state.terminated.reason
                                 exit_code = container_state.terminated.exit_code
-                                print(
+                                logger.info(
                                     "Submission: {} :: Container {} terminated with reason: {} and exit_code: {}".format(
                                         submission_pk, container_name, reason, exit_code
                                     )
                                 )
 
                                 if reason == "Completed" and exit_code == 0:
-                                    print("Submission: {} :: Container {} executed successfully.".format(submission_pk, container_name))
+                                    logger.info("Submission: {} :: Container {} executed successfully.".format(submission_pk, container_name))
                                     clean_submission = True
                                     submission_failed = False
                                 else:
-                                    print("Submission: {} :: Container {} failed with reason: {}".format(submission_pk, container_name, reason))
+                                    logger.info("Submission: {} :: Container {} failed with reason: {}".format(submission_pk, container_name, reason))
                                     clean_submission = True  # Or handle failure logic here
                                     submission_failed = True
 
@@ -648,40 +648,38 @@ def update_jobs_and_send_logs(
                                     )
                                     pod_log = pod_log_response.data.decode("utf-8")
                                     pod_log = pod_log[-10000:]
-                                    print("pod_log")
-                                    print(pod_log)
+                                    # logger.info("pod_log")
+                                    # logger.info(pod_log)
                                     if container_name == "environment":
                                         code_upload_environment_error = pod_log
                                     else:
                                         submission_error = pod_log
 
                                 except client.rest.ApiException as e:
-                                    print(f"Exception while reading logs for container {container_name}: {e}")
+                                    logger.exception(f"Exception while reading logs for container {container_name}: {e}")
                 else:
                     # if submission_pk_status in ("evaluating", "finished", "cancelled", "failed"):
                     #     clean_submission = True
                     # else:
                     logger.info("Job pods in pending state, waiting for node assignment for submission {}".format(submission_pk))
         else:
-            print("2 setting clean_submission to True")
-            print("Exception while reading Job {}, does not exist.".format(job_name))
+            logger.debug("Exception while reading Job {}, does not exist.".format(job_name))
             logger.exception("Exception while reading Job {}, does not exist.".format(job_name))
             clean_submission = True
 
     except Exception as e:
-        print("3 setting clean_submission to True")
-        print("Exception while reading Job {}".format(e))
+        logger.debug("Exception while reading Job {}".format(e))
         logger.exception("Exception while reading Job {}".format(e))
         clean_submission = True
 
-    print("Submission: {} :: clean_submission, submission_failed".format(submission_pk), clean_submission, submission_failed)
+    logger.info("Submission: {} :: clean_submission, submission_failed. {}, {}".format(submission_pk, clean_submission, submission_failed))
 
     if clean_submission:
-        print("cleanup_submission :: deleting job")
+        logger.info("cleanup_submission :: deleting job")
         cleanup_submission_job_delete(
             api_instance, evalai, job_name, submission_pk, challenge_pk, phase_pk, submission_error, code_upload_environment_error, submission_failed
         )
-        print("cleanup_submission :: deleting SQS message, {}".format(message))
+        logger.info("cleanup_submission :: deleting SQS message, {}".format(message))
         cleanup_submission_sqs_message_delete(submission_pk, message, queue_object)
 
 
@@ -694,8 +692,8 @@ def install_gpu_drivers(api_instance):
     """
     logging.info("Installing Nvidia-GPU Drivers ...")
     # Original manifest source: https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v1.11/nvidia-device-plugin.yml
-    manifest_path = "/code/scripts/workers/code_upload_worker_utils/nvidia-device-plugin.yml"
-    manifest_path = "/code/scripts/workers/code_upload_worker_utils/nvidia-device-plugin-latest.yml"
+    manifest_path = "./scripts/workers/code_upload_worker_utils/nvidia-device-plugin.yml"
+    manifest_path = "./scripts/workers/code_upload_worker_utils/nvidia-device-plugin-latest.yml"
     logging.info("Using daemonset file: %s", manifest_path)
     nvidia_manifest = open(manifest_path).read()
     daemonset_spec = yaml.load(nvidia_manifest, yaml.FullLoader)
@@ -779,7 +777,7 @@ def main():
     submission_meta = {}
     submission_meta["submission_time_limit"] = challenge.get("submission_time_limit")
 
-    print("running main")
+    logger.info("running main")
 
     while True:
         time.sleep(2)
@@ -788,9 +786,9 @@ def main():
         message_body = message.get("body")
 
         if message_body:
-            print("in while :: message_body", message_body)
+            logger.debug("in while :: message_body", message_body)
             if challenge.get("is_static_dataset_code_upload") and not message_body.get("is_static_dataset_code_upload_submission"):
-                print("sleeping for 35 seconds")
+                logger.info("sleeping for 35 seconds")
                 time.sleep(35)
                 continue
 
@@ -808,7 +806,8 @@ def main():
             disable_logs = challenge_phase.get("disable_logs")
 
             submission = evalai.get_submission_by_pk(submission_pk)
-            print('submission.get("status")', submission.get("status"))
+
+            logger.info("Submission: {}, status: {}".format(submission_pk, submission.get("status")))
 
             if submission:
                 if (
@@ -823,7 +822,7 @@ def main():
                     #     message_receipt_handle = message.get("receipt_handle")
                     #     if job_name:
                     #         job_name = submission.get("job_name")[-1]
-                    #         print("deleting job in while loop", job_name)
+                    #         logger.debug("deleting job in while loop", job_name)
                     #         update_jobs_and_send_logs(
                     #             api_instance,
                     #             core_v1_api_instance,
@@ -851,6 +850,7 @@ def main():
                         job_name = submission.get("job_name")
                         message_receipt_handle = message.get("receipt_handle")
                         if job_name:
+                            logger.info("Deleting job")
                             latest_job_name = job_name[-1]
                             delete_job(api_instance, latest_job_name)
                         else:
@@ -874,11 +874,11 @@ def main():
                         #     QUEUE_NAME, is_remote
                         # )
                 elif submission.get("status") == "queued":
-                    print("In queue")
+                    logger.debug("In queue")
                     job_name = submission.get("job_name")[-1]
                     pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
                     if pods_list and pods_list.items[0].status.container_statuses:
-                        print("pods_list.items[0].status.container_statuses", pods_list.items[0].status.container_statuses)
+                        logger.debug("pods_list.items[0].status.container_statuses", pods_list.items[0].status.container_statuses)
                         # Update submission to running
                         submission_data = {
                             "submission_status": "running",
@@ -888,7 +888,7 @@ def main():
                         evalai.update_submission_status(submission_data, challenge_pk)
 
                 elif submission.get("status") == "running":
-                    print("In running")
+                    logger.debug("In running")
                     job_name = submission.get("job_name")[-1]
                     update_jobs_and_send_logs(
                         api_instance,
@@ -915,6 +915,6 @@ def main():
 
 
 if __name__ == "__main__":
-    print("running main")
+    logger.debug("running main")
     main()
     logger.info("Quitting Submission Worker.")
