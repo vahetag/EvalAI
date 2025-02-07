@@ -80,3 +80,4 @@ docker/prod/docker_production.env
 docker/prod/docker_staging.env
 .venv
 get_helm.sh
+worker_logs/
