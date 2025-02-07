@@ -29,8 +29,6 @@ if not IS_STAGING:
         "https://bpc.opencv.org",
         "https://opencv-bpc-comp-2025.s3-us-west-2.amazonaws.com",
         "https://opencv-bpc-comp-2025.s3.amazonaws.com",
-        "http://localhost:8000",  # Django development server
-        "http://127.0.0.1:8000",  # Django development server (IPv4)
     )
 else:
     ALLOWED_HOSTS = ["bpcstaging.opencv.org", "34.212.81.232", "ec2-34-212-81-232.us-west-2.compute.amazonaws.com"]
