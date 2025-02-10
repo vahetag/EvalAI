@@ -8,7 +8,7 @@ import uuid
 from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.files.base import ContentFile
-from moto import mock_ecr, mock_sts
+# from moto import mock_ecr, mock_sts
 
 from base.utils import (
     get_model_object,
@@ -356,8 +356,8 @@ def create_federated_user(name, repository, aws_keys):
     return response
 
 
-@mock_if_non_prod_aws(mock_ecr)
-@mock_if_non_prod_aws(mock_sts)
+# @mock_if_non_prod_aws(mock_ecr)
+# @mock_if_non_prod_aws(mock_sts)
 def get_aws_credentials_for_submission(challenge, participant_team):
     """
     Method to generate AWS Credentails for CLI's Push
