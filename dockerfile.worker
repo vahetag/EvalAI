@@ -38,7 +38,7 @@ RUN pyenv exec python3.7 -m pip install --upgrade pip setuptools wheel && \
     pyenv exec python3.9 -m pip install --upgrade pip==24.0 setuptools==60.10.0 wheel cffi service_identity
 
 RUN pyenv exec python3.7 -m pip install -r code_upload_worker.txt && \
-    pyenv exec python3.9 -m pip install -r prod_2.txt -r worker.txt
+    pyenv exec python3.9 -m pip install -r prod_2.txt -r worker_2.txt
 
 RUN pyenv local 3.7 3.9
 
