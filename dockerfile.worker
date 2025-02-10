@@ -1,0 +1,48 @@
+FROM ubuntu:latest
+
+ENV PYTHONUNBUFFERED=1
+ARG DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /code
+ADD requirements/* /code/
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    make build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+    libncurses5-dev libncursesw5-dev xz-utils tk-dev \
+    libffi-dev liblzma-dev python3-openssl libcurl4-openssl-dev \
+    unzip libpq-dev default-jre default-jdk git cmake \
+    libeigen3-dev libboost-python-dev libopencv-dev python3-opencv \
+    libgmp-dev libcgal-qt5-dev swig && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user and assign ownership of /code
+RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /code
+USER appuser
+ENV HOME="/home/appuser"
+WORKDIR /code
+
+# Install pyenv for appuser
+RUN curl https://pyenv.run | bash
+
+ENV PYENV_ROOT="$HOME/.pyenv"
+ENV PATH="$PYENV_ROOT/bin:$PATH"
+
+RUN echo 'eval "$(pyenv init -)"' >> $HOME/.bashrc
+
+# Install Python versions and set global/local defaults
+RUN pyenv install 3.7 && pyenv install 3.9 
+RUN pyenv global 3.7 3.9
+
+RUN pyenv exec python3.7 -m pip install --upgrade pip setuptools wheel && \
+    pyenv exec python3.9 -m pip install --upgrade pip==24.0 setuptools==60.10.0 wheel cffi service_identity
+
+RUN pyenv exec python3.7 -m pip install -r code_upload_worker.txt && \
+    pyenv exec python3.9 -m pip install -r prod_2.txt -r worker.txt
+
+RUN pyenv local 3.7 3.9
+
+ADD . /code
+
+# CMD ["python3.9", "-m", "scripts.workers.submission_worker"]
+# RUN set -a && . docker/prod_self/docker.env  && set +a
