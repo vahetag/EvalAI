@@ -37,6 +37,8 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 logger.propagate = False
 
+NODEGROUP = "Submission-workers-GPU-L4-staging"
+
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "auth_token")
 EVALAI_API_SERVER = os.environ.get("EVALAI_API_SERVER", "http://localhost:8000")
 QUEUE_NAME = os.environ.get("QUEUE_NAME", "evalai_submission_queue")
@@ -46,6 +48,8 @@ UBUNTU_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:ubuntu"
 # ZENOH_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:zenoh"
 ZENOH_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:zenohd_tini"
 ROS_HOST_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:HOST_3"
+
+DATASET_TO_USE = "test"
 
 
 def get_or_create_sqs_queue(queue_name="evalai_submission_queue", challenge=None):
@@ -262,6 +266,8 @@ def create_static_code_upload_submission_job_object(message, challenge):
 
     EFS_VOLUME_MOUNT_PATH = r"/opt/ros/underlay/install/datasets"
     EFS_VOLUME_MOUNT_PATH_ENV = client.V1EnvVar(name="BOP_PATH", value=EFS_VOLUME_MOUNT_PATH)
+
+    DATASET_ENV = client.V1EnvVar(name="SPLIT_TYPE", value=DATASET_TO_USE),
     ######################################################################################################
 
     # Volume and Volume mount object setup
@@ -329,6 +335,7 @@ def create_static_code_upload_submission_job_object(message, challenge):
             CHALLENGE_PK_ENV,
             PHASE_PK_ENV,
             EFS_VOLUME_MOUNT_PATH_ENV,
+            DATASET_ENV,
         ],
         volume_mounts=volume_mount_list,
     )
