@@ -47,7 +47,7 @@ script_config_map_name = "evalai-scripts-cm"
 UBUNTU_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:ubuntu"
 # ZENOH_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:zenoh"
 ZENOH_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:zenohd_tini"
-ROS_HOST_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:HOST_3"
+ROS_HOST_CONTAINER_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:HOST"
 
 DATASET_TO_USE = "test"
 
@@ -267,7 +267,8 @@ def create_static_code_upload_submission_job_object(message, challenge):
     EFS_VOLUME_MOUNT_PATH = r"/opt/ros/underlay/install/datasets"
     EFS_VOLUME_MOUNT_PATH_ENV = client.V1EnvVar(name="BOP_PATH", value=EFS_VOLUME_MOUNT_PATH)
 
-    DATASET_ENV = client.V1EnvVar(name="SPLIT_TYPE", value=DATASET_TO_USE),
+    DATASET_NAME_ENV = client.V1EnvVar(name="DATASET_NAME", value="ipd")
+    DATASET_SPLIT_ENV = client.V1EnvVar(name="SPLIT_TYPE", value=DATASET_TO_USE)
     ######################################################################################################
 
     # Volume and Volume mount object setup
@@ -335,7 +336,8 @@ def create_static_code_upload_submission_job_object(message, challenge):
             CHALLENGE_PK_ENV,
             PHASE_PK_ENV,
             EFS_VOLUME_MOUNT_PATH_ENV,
-            DATASET_ENV,
+            DATASET_NAME_ENV,
+            DATASET_SPLIT_ENV,
         ],
         volume_mounts=volume_mount_list,
     )
