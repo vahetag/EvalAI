@@ -323,7 +323,11 @@ def create_static_code_upload_submission_job_object(message, challenge):
     )
 
     # Container based on ZENOH_CONTAINER_IMAGE
-    zenoh_container = client.V1Container(name="zenoh-container", image=ZENOH_CONTAINER_IMAGE)
+    zenoh_container = client.V1Container(
+        name="zenoh-container",
+        image=ZENOH_CONTAINER_IMAGE,
+        # image_pull_policy="Always",
+    )
 
     # Container based on ROS_HOST_CONTAINER_IMAGE
     ros_host_container = client.V1Container(
@@ -340,6 +344,7 @@ def create_static_code_upload_submission_job_object(message, challenge):
             DATASET_SPLIT_ENV,
         ],
         volume_mounts=volume_mount_list,
+        # image_pull_policy="Always",
     )
 
     # Container based on Submitted image
@@ -353,7 +358,8 @@ def create_static_code_upload_submission_job_object(message, challenge):
             PHASE_PK_ENV,
         ],
         resources=client.V1ResourceRequirements(limits=job_constraints),
-        volume_mounts=volume_mount_list,
+        volume_mounts=volume_mount_list[1:],  # To not mount the dataset folder in submissio container.
+        image_pull_policy="Always",
     )
 
     ######################################################################################################
