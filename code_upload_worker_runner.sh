@@ -17,15 +17,31 @@ LOG_SUBDIR="code_upload_worker"
 LOG_FILE_PREFIX="v"
 CURRENT_LOG_RECORD="${LOG_DIR}/${LOG_SUBDIR}/current_log_file_name.txt"
 
+# Check for required commands
+check_dependencies() {
+    for cmd in git python3.9 tail; do
+        if ! command -v $cmd &>/dev/null; then
+            echo "$cmd is required but not installed. Aborting."
+            exit 1
+        fi
+    done
+}
+
+# Function to check if the worker is already running
+is_worker_running() {
+    pgrep -f "python3.9 $PYTHON_SCRIPT" &>/dev/null
+}
+
 # Function to start the worker
 start_worker() {
-    echo "Stopping any previous instance..."
-    pkill -f "$PYTHON_SCRIPT" 2>/dev/null
-    sleep 10;
+    if is_worker_running; then
+        echo "Worker is already running. Aborting start."
+        exit 1
+    fi
 
     # Create log directory if needed
     mkdir -p "${LOG_DIR}/${LOG_SUBDIR}"
-    
+
     # Determine the current date and next log number
     CURRENT_DATE=$(date +"%d_%m_%y")
     LOG_NUM=0
@@ -52,7 +68,7 @@ start_worker() {
     echo "Starting code-upload-worker. Log file: $LOG_FILE"
 
     # Checkout and update code (adjust branches as needed)
-    echo "Checkout to 'aws-changes' branch..." > "$LOG_FILE"
+    echo "Checking out 'aws-changes' branch..." > "$LOG_FILE"
     git checkout aws-changes >> "$LOG_FILE" 2>&1
     echo "Pulling latest changes from origin/aws-changes..." >> "$LOG_FILE"
     git pull origin aws-changes >> "$LOG_FILE" 2>&1
@@ -68,8 +84,8 @@ start_worker() {
 # Function to stop the worker
 stop_worker() {
     echo "Stopping code-upload-worker..."
-    pkill -f "$PYTHON_SCRIPT" 2>/dev/null
-    sleep 10;
+    pkill -f "python3.9 $PYTHON_SCRIPT" 2>/dev/null
+    sleep 20
     echo "code-upload-worker stopped (if it was running)."
 }
 
@@ -91,6 +107,18 @@ show_logs() {
     fi
 }
 
+# # Function to handle graceful termination
+# cleanup() {
+#     echo "Cleaning up..."
+#     stop_worker
+# }
+
+# # Trap to catch Ctrl+C and handle cleanup
+# trap cleanup INT TERM
+
+# Check for dependencies
+check_dependencies
+
 # Main option parsing
 case "$1" in
     start)
@@ -100,7 +128,9 @@ case "$1" in
         stop_worker
         ;;
     restart)
-        stop_worker
+        if is_worker_running; then
+            stop_worker
+        fi
         # Give a moment for the stop to take effect
         sleep 1
         start_worker
