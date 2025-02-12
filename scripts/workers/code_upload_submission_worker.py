@@ -620,12 +620,12 @@ def update_jobs_and_send_logs(
     submission_error = "Submission Job Failed."
 
     logger.debug("In update_jobs_and_send_logs")
-    logger.debug("job_name", job_name)
-    logger.debug("submission_pk", submission_pk)
-    logger.debug("challenge_pk", challenge_pk)
-    logger.debug("phase_pk", phase_pk)
-    logger.debug("message", message)
-    logger.debug("queue_name", queue_name)
+    logger.debug("job_name: {}".format(job_name))
+    logger.debug("submission_pk: {}".format(submission_pk))
+    logger.debug("challenge_pk: {}".format(challenge_pk))
+    logger.debug("phase_pk: {}".format(phase_pk))
+    logger.debug("message: {}".format(message))
+    logger.debug("queue_name: {}".format(queue_name))
 
     try:
         pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
@@ -642,7 +642,7 @@ def update_jobs_and_send_logs(
                     for container in pods_list.items[0].status.container_statuses:
                         container_state_map[container.name] = container.state
 
-                    logger.debug("container_state_map", container_state_map)
+                    logger.debug("container_state_map: {}".format(container_state_map))
 
                     for container_name, container_state in container_state_map.items():
                         if container_name in ["ros-participant-container", "ros-host-container"]:
@@ -833,7 +833,7 @@ def main():
         message_body = message.get("body")
 
         if message_body:
-            logger.debug("in while :: message_body", message_body)
+            logger.debug("in while :: message_body: {}".format(message_body))
             if challenge.get("is_static_dataset_code_upload") and not message_body.get("is_static_dataset_code_upload_submission"):
                 logger.info("sleeping for 35 seconds")
                 time.sleep(35)
@@ -869,7 +869,7 @@ def main():
                     #     message_receipt_handle = message.get("receipt_handle")
                     #     if job_name:
                     #         job_name = submission.get("job_name")[-1]
-                    #         logger.debug("deleting job in while loop", job_name)
+                    #         logger.debug("deleting job in while loop: {}".format(job_name))
                     #         update_jobs_and_send_logs(
                     #             api_instance,
                     #             core_v1_api_instance,
@@ -926,8 +926,7 @@ def main():
                     pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
                     if pods_list and pods_list.items[0].status.container_statuses:
                         logger.debug(
-                            "pods_list.items[0].status.container_statuses",
-                            pods_list.items[0].status.container_statuses,
+                            "pods_list.items[0].status.container_statuses: {}".format(pods_list.items[0].status.container_statuses)
                         )
                         # Update submission to running
                         submission_data = {
