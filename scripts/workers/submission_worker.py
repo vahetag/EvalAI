@@ -297,7 +297,12 @@ def extract_challenge_data(challenge, phases):
         phase_data_directory = PHASE_DATA_DIR.format(challenge_id=challenge.id, phase_id=phase.id)
         # create phase directory
         create_dir(phase_data_directory)
+        try:
         annotation_file_url = phase.test_annotation.url
+        except ValueError:
+            logger.warning("Test annotation not available for phase: {}. Skipping registration...".format(phase.id))
+            continue
+
         annotation_file_url = return_file_url_per_environment(annotation_file_url)
         annotation_file_name = os.path.basename(phase.test_annotation.name)
         PHASE_ANNOTATION_FILE_NAME_MAP[challenge.id][phase.id] = annotation_file_name
