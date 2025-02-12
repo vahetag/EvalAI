@@ -150,12 +150,12 @@ def create_configmap(core_v1_api_instance, config_map):
         config_maps = core_v1_api_instance.list_namespaced_config_map(namespace="default")
         if len(config_maps.items) and config_maps.items[0].metadata.name == script_config_map_name:
             # Replacing existing configmap
-            logger.info("Replacing existing config map")
-            core_v1_api_instance.replace_namespaced_config_map(
-                name=script_config_map_name,
-                namespace="default",
-                body=config_map,
-            )
+            logger.info("config_maps already exists.")
+            # core_v1_api_instance.replace_namespaced_config_map(
+            #     name=script_config_map_name,
+            #     namespace="default",
+            #     body=config_map,
+            # )
             return
         logger.info("Creating new config map.")
         core_v1_api_instance.create_namespaced_config_map(
