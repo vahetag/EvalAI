@@ -119,8 +119,8 @@ cat ./scripts/workers/code_upload_worker_utils/cluster-autoscaler-autodiscover.y
 kubectl patch deployment cluster-autoscaler -n kube-system -p '{"spec":{"template": {"metadata": {"annotations": {"cluster-autoscaler.kubernetes.io/safe-to-evict": "false"}}}}}'
 
 
-# Running Submission Worker
-chmod +x scripts/workers/code_upload_submission_worker.py
-python scripts/workers/code_upload_submission_worker.py
-echo "### Worker Started"
+# # Running Submission Worker
+# chmod +x scripts/workers/code_upload_submission_worker.py
+# python scripts/workers/code_upload_submission_worker.py
+# echo "### Worker Started"
 
