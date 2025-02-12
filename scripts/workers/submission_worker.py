@@ -298,7 +298,7 @@ def extract_challenge_data(challenge, phases):
         # create phase directory
         create_dir(phase_data_directory)
         try:
-        annotation_file_url = phase.test_annotation.url
+            annotation_file_url = phase.test_annotation.url
         except ValueError:
             logger.warning("Test annotation not available for phase: {}. Skipping registration...".format(phase.id))
             continue
@@ -374,6 +374,8 @@ def extract_submission_data(submission_id):
     create_dir_as_python_package(submission_data_directory)
 
     download_and_extract_file(submission_input_file, submission_input_file_path)
+    print("submission_input_file", submission_input_file)
+    print("submission_input_file_path", submission_input_file_path)
 
     return submission
 
@@ -392,6 +394,9 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
 
     submission_output = None
     phase_id = challenge_phase.id
+    logger.info("challenge_id: {}".format(challenge_id))
+    logger.info("phase_id: {}".format(phase_id))
+    # print("PHASE_ANNOTATION_FILE_NAME_MAP", PHASE_ANNOTATION_FILE_NAME_MAP)
     annotation_file_name = PHASE_ANNOTATION_FILE_NAME_MAP.get(challenge_id).get(phase_id)
     annotation_file_path = PHASE_ANNOTATION_FILE_PATH.format(
         challenge_id=challenge_id,
@@ -409,6 +414,9 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
     temp_run_dir = join(submission_data_dir, "run")
     create_dir(temp_run_dir)
 
+    # print("submission_data_dir", submission_data_dir)
+    # print("temp_run_dir", temp_run_dir)
+
     stdout_file = join(temp_run_dir, "temp_stdout.txt")
     stderr_file = join(temp_run_dir, "temp_stderr.txt")
 
@@ -417,10 +425,17 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
 
     remote_evaluation = submission.challenge_phase.challenge.remote_evaluation
 
+    # print("EVALUATION_SCRIPTS", EVALUATION_SCRIPTS[1])
+
+    # print("CHALLENGE_DATA_DIR", CHALLENGE_DATA_DIR.format(challenge_id=challenge_id))
+
     if remote_evaluation:
         try:
             logger.info("{} Sending submission {} for remote evaluation".format(SUBMISSION_LOGS_PREFIX, submission.id))
-            with stdout_redirect(MultiOut(stdout, sys.__stdout__)) as new_stdout, stderr_redirect(MultiOut(stderr, sys.__stderr__)) as new_stderr:
+            with (
+                stdout_redirect(MultiOut(stdout, sys.__stdout__)) as new_stdout,
+                stderr_redirect(MultiOut(stderr, sys.__stderr__)) as new_stderr,
+            ):
                 submission_output = EVALUATION_SCRIPTS[challenge_id].evaluate(
                     annotation_file_path,
                     user_annotation_file_path,
@@ -450,13 +465,17 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
     # call `main` from globals and set `status` to running and hence `started_at`
     try:
         successful_submission_flag = True
-        with stdout_redirect(MultiOut(stdout, sys.__stdout__)) as new_stdout, stderr_redirect(MultiOut(stderr, sys.__stderr__)) as new_stderr:  # noqa
+        with (
+            stdout_redirect(MultiOut(stdout, sys.__stdout__)) as new_stdout,
+            stderr_redirect(MultiOut(stderr, sys.__stderr__)) as new_stderr,
+        ):  # noqa
             submission_output = EVALUATION_SCRIPTS[challenge_id].evaluate(
                 annotation_file_path,
                 user_annotation_file_path,
                 challenge_phase.codename,
                 submission_metadata=submission_serializer.data,
             )
+            logger.info("submission_output: {}".format(submission_output))
         """
         A submission will be marked successful only if it is of the format
             {
@@ -496,6 +515,7 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
             for split_result in submission_output["result"]:
                 # get split_code_name that is the key of the result
                 split_code_name = list(split_result.keys())[0]
+                logger.info("split_code_name: {}".format(split_code_name))
 
                 # Check if the challenge_phase_split exists for the challenge_phaseand dataset_split
                 try:
@@ -504,7 +524,9 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
                         dataset_split__codename=split_code_name,
                     )
                 except Exception:
-                    stderr.write("ORGINIAL EXCEPTION: No such relation between Challenge Phase and DatasetSplit specified by Challenge Host \n")
+                    stderr.write(
+                        "ORGINIAL EXCEPTION: No such relation between Challenge Phase and DatasetSplit specified by Challenge Host \n"
+                    )
                     stderr.write(traceback.format_exc())
                     successful_submission_flag = False
                     break
@@ -513,7 +535,9 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
                 try:
                     dataset_split = challenge_phase_split.dataset_split
                 except Exception:
-                    stderr.write("ORGINIAL EXCEPTION: The codename specified by your Challenge Host doesn't match with that in the evaluation Script.\n")
+                    stderr.write(
+                        "ORGINIAL EXCEPTION: The codename specified by your Challenge Host doesn't match with that in the evaluation Script.\n"
+                    )
                     stderr.write(traceback.format_exc())
                     successful_submission_flag = False
                     break
@@ -544,6 +568,8 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
         # In case of exception from evaluation script submission_output is assigned exception object
         submission_output = None
 
+    # print("successful_submission_flag", successful_submission_flag)
+    logger.info("successful_submission_flag: {}".format(successful_submission_flag))
     submission_status = Submission.FINISHED if successful_submission_flag else Submission.FAILED
     submission.status = submission_status
     submission.completed_at = timezone.now()
@@ -592,7 +618,11 @@ def process_submission_message(message):
     challenge_id = message.get("challenge_pk")
     phase_id = message.get("phase_pk")
     submission_id = message.get("submission_pk")
+    logger.info("challenge_id: {}".format(challenge_id))
+    logger.info("phase_id: {}".format(phase_id))
+    logger.info("submission_id: {}".format(submission_id))
     submission_instance = extract_submission_data(submission_id)
+    logger.info("submission_instance: {}".format(submission_instance))
 
     # so that the further execution does not happen
     if not submission_instance:
@@ -603,6 +633,8 @@ def process_submission_message(message):
     except ChallengePhase.DoesNotExist:
         logger.exception("{} Challenge Phase {} does not exist".format(WORKER_LOGS_PREFIX, phase_id))
         raise
+
+    logger.info("challenge_phase: {}".format(challenge_phase))
 
     if submission_instance.challenge_phase.challenge.is_static_dataset_code_upload:
         input_file_name = submission_instance.submission_input_file.name
@@ -716,7 +748,9 @@ def main():
     if settings.DEBUG or settings.TEST:
         if eval(LIMIT_CONCURRENT_SUBMISSION_PROCESSING):
             if not challenge_pk:
-                logger.exception("{} Please add CHALLENGE_PK for the challenge to be loaded in the docker.env file.".format(WORKER_LOGS_PREFIX))
+                logger.exception(
+                    "{} Please add CHALLENGE_PK for the challenge to be loaded in the docker.env file.".format(WORKER_LOGS_PREFIX)
+                )
                 sys.exit(1)
             (
                 maximum_concurrent_submissions,
@@ -735,10 +769,12 @@ def main():
     # create submission base data directory
     create_dir_as_python_package(SUBMISSION_DATA_BASE_DIR)
     queue_name = os.environ.get("CHALLENGE_QUEUE", "evalai_submission_queue")
+    logger.info("queue_name: {}".format(queue_name))
     queue = get_or_create_sqs_queue(queue_name, challenge)
     is_remote = int(challenge.remote_evaluation)
     while True:
         for message in queue.receive_messages():
+            logger.info("message body: {}".format(json.loads(message.body)))
             if json.loads(message.body).get("is_static_dataset_code_upload_submission"):
                 continue
             if settings.DEBUG or settings.TEST:
@@ -762,7 +798,9 @@ def main():
                     message.delete()
                     # increment_and_push_metrics_to_statsd(queue_name, is_remote)
             else:
-                current_running_submissions_count = Submission.objects.filter(challenge_phase__challenge=challenge.id, status="running").count()
+                current_running_submissions_count = Submission.objects.filter(
+                    challenge_phase__challenge=challenge.id, status="running"
+                ).count()
                 if current_running_submissions_count == maximum_concurrent_submissions:
                     pass
                 else:
@@ -773,7 +811,7 @@ def main():
                     # increment_and_push_metrics_to_statsd(queue_name, is_remote)
         if killer.kill_now:
             break
-        time.sleep(0.1)
+        time.sleep(10)
 
 
 if __name__ == "__main__":
