@@ -21,6 +21,7 @@ CURRENT_LOG_RECORD="${LOG_DIR}/${LOG_SUBDIR}/current_log_file_name.txt"
 start_worker() {
     echo "Stopping any previous instance..."
     pkill -f "$PYTHON_SCRIPT" 2>/dev/null
+    sleep 10;
 
     # Create log directory if needed
     mkdir -p "${LOG_DIR}/${LOG_SUBDIR}"
@@ -68,6 +69,7 @@ start_worker() {
 stop_worker() {
     echo "Stopping code-upload-worker..."
     pkill -f "$PYTHON_SCRIPT" 2>/dev/null
+    sleep 10;
     echo "code-upload-worker stopped (if it was running)."
 }
 
