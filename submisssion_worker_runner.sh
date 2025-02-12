@@ -1,26 +1,26 @@
 #!/bin/bash
-# code_upload_worker_runner.sh
+# submssion_worker_runner.sh
 # Usage:
-#   ./code_upload_worker_runner.sh start
-#   ./code_upload_worker_runner.sh stop
-#   ./code_upload_worker_runner.sh restart
-#   ./code_upload_worker_runner.sh logs [number_of_lines]
+#   ./submssion_worker_runner.sh start
+#   ./submssion_worker_runner.sh stop
+#   ./submssion_worker_runner.sh restart
+#   ./submssion_worker_runner.sh logs [number_of_lines]
 
 # Load environment variables
 set -a; . docker/prod_self/docker.env; set +a
-set -a; . docker/prod_self/docker_code_upload_worker.env; set +a
 
 # Configuration variables
-PYTHON_SCRIPT="./scripts/workers/code_upload_submission_worker.py"
+PYTHON_MODULE="scripts.workers.submission_worker"
 LOG_DIR="worker_logs"
-LOG_SUBDIR="code_upload_worker"
+LOG_SUBDIR="submission_worker"
 LOG_FILE_PREFIX="v"
 CURRENT_LOG_RECORD="${LOG_DIR}/${LOG_SUBDIR}/current_log_file_name.txt"
 
 # Function to start the worker
 start_worker() {
     echo "Stopping any previous instance..."
-    pkill -f "$PYTHON_SCRIPT" 2>/dev/null
+    pkill -f "$PYTHON_MODULE" 2>/dev/null
+    sleep 10;
 
     # Create log directory if needed
     mkdir -p "${LOG_DIR}/${LOG_SUBDIR}"
@@ -48,7 +48,7 @@ start_worker() {
     # Save the current log file name for future reference
     echo "$LOG_FILE" > "${CURRENT_LOG_RECORD}"
 
-    echo "Starting code-upload-worker. Log file: $LOG_FILE"
+    echo "Starting submission-worker. Log file: $LOG_FILE"
 
     # Checkout and update code (adjust branches as needed)
     echo "Checkout to 'aws-changes' branch..." > "$LOG_FILE"
@@ -57,18 +57,19 @@ start_worker() {
     git pull origin aws-changes >> "$LOG_FILE" 2>&1
 
     # Install/update Python requirements
-    python3.9 -m pip install -U -r requirements/code_upload_worker.txt >> "$LOG_FILE" 2>&1
+    python3.9 -m pip install -U -r requirements/prod_2.txt -r requirements/worker_2.txt >> "$LOG_FILE" 2>&1
 
     # Start the worker in the background using nohup
-    nohup python3.9 "$PYTHON_SCRIPT" >> "$LOG_FILE" 2>&1 &
-    echo "code-upload-worker started in background. Log file: $LOG_FILE"
+    python3.9 -m $PYTHON_MODULE >> "$LOG_FILE" 2>&1 &
+    echo "submission-worker started in background. Log file: $LOG_FILE"
 }
 
 # Function to stop the worker
 stop_worker() {
-    echo "Stopping code-upload-worker..."
-    pkill -f "$PYTHON_SCRIPT" 2>/dev/null
-    echo "code-upload-worker stopped (if it was running)."
+    echo "Stopping submission-worker..."
+    pkill -f "$PYTHON_MODULE" 2>/dev/null
+    sleep 10;
+    echo "submission-worker stopped (if it was running)."
 }
 
 # Function to show the log tail
