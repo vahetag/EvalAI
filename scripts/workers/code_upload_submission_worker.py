@@ -79,7 +79,9 @@ def get_or_create_sqs_queue(queue_name="evalai_submission_queue", challenge=None
     except botocore.exceptions.ClientError as ex:
         if ex.response["Error"]["Code"] != "AWS.SimpleQueueService.NonExistentQueue":
             logger.exception("Cannot get queue: {}".format(queue_name))
-        sqs_retention_period = os.getenv("SQS_RETENTION_PERIOD", "345600") if challenge is None else str(challenge.get("sqs_retention_period"))
+        sqs_retention_period = (
+            os.getenv("SQS_RETENTION_PERIOD", "345600") if challenge is None else str(challenge.get("sqs_retention_period"))
+        )
         queue = sqs.create_queue(
             QueueName=queue_name,
             Attributes={"MessageRetentionPeriod": sqs_retention_period},
@@ -197,7 +199,11 @@ def get_init_container(submission_pk):
     init_container = client.V1Container(
         name="init-container",
         image=UBUNTU_IMAGE,
-        command=["/bin/bash", "-c", "apt update && apt install -y curl && {}".format(curl_request)],
+        command=[
+            "/bin/bash",
+            "-c",
+            "apt update && apt install -y curl && {}".format(curl_request),
+        ],
     )
     return init_container
 
@@ -255,7 +261,10 @@ def create_static_code_upload_submission_job_object(message, challenge):
     CHALLENGE_PK_ENV = client.V1EnvVar(name="CHALLENGE_PK", value=str(challenge_pk))
     PHASE_PK_ENV = client.V1EnvVar(name="PHASE_PK", value=str(phase_pk))
     # Using Default value 1 day = 86400s as Time Limit.
-    SUBMISSION_TIME_LIMIT_ENV = client.V1EnvVar(name="SUBMISSION_TIME_LIMIT", value=str(submission_meta["submission_time_limit"]))
+    SUBMISSION_TIME_LIMIT_ENV = client.V1EnvVar(
+        name="SUBMISSION_TIME_LIMIT",
+        value=str(submission_meta["submission_time_limit"]),
+    )
     SUBMISSION_TIME_DELTA_ENV = client.V1EnvVar(name="SUBMISSION_TIME_DELTA", value="300")
 
     AUTH_TOKEN_ENV = client.V1EnvVar(name="AUTH_TOKEN", value=AUTH_TOKEN)
@@ -308,7 +317,11 @@ def create_static_code_upload_submission_job_object(message, challenge):
     sidecar_container = client.V1Container(
         name="sidecar-container",
         image=UBUNTU_IMAGE,
-        command=["/bin/sh", "-c", "apt update && apt install -y curl && sh /evalai_scripts/monitor_submission.sh"],
+        command=[
+            "/bin/sh",
+            "-c",
+            "apt update && apt install -y curl && sh /evalai_scripts/monitor_submission.sh",
+        ],
         env=[
             SUBMISSION_PATH_ENV,
             CHALLENGE_PK_ENV,
@@ -601,7 +614,7 @@ def update_jobs_and_send_logs(
     queue_object,
 ):
     clean_submission = False
-    submission_failed = True
+    submission_failed = False
 
     code_upload_environment_error = "Submission Job Failed."
     submission_error = "Submission Job Failed."
@@ -632,7 +645,7 @@ def update_jobs_and_send_logs(
                     logger.debug("container_state_map", container_state_map)
 
                     for container_name, container_state in container_state_map.items():
-                        if container_name in ["agent", "ros-participant-container", "environment"]:
+                        if container_name in ["ros-participant-container", "ros-host-container"]:
                             if container_state.terminated is not None:
                                 reason = container_state.terminated.reason
                                 exit_code = container_state.terminated.exit_code
@@ -643,15 +656,24 @@ def update_jobs_and_send_logs(
                                 )
 
                                 if reason == "Completed" and exit_code == 0:
-                                    logger.info("Submission: {} :: Container {} executed successfully.".format(submission_pk, container_name))
+                                    logger.info(
+                                        "Submission: {} :: Container {} executed successfully.".format(submission_pk, container_name)
+                                    )
                                     clean_submission = True
                                     submission_failed = False
                                 else:
-                                    logger.info("Submission: {} :: Container {} failed with reason: {}".format(submission_pk, container_name, reason))
+                                    logger.info(
+                                        "Submission: {} :: Container {} failed with reason: {}".format(
+                                            submission_pk, container_name, reason
+                                        )
+                                    )
                                     clean_submission = True  # Or handle failure logic here
                                     submission_failed = True
 
                                 pod_name = pods_list.items[0].metadata.name
+
+                                if clean_submission:
+                                    container_name = "ros-participant-container"
 
                                 try:
                                     pod_log_response = core_v1_api_instance.read_namespaced_pod_log(
@@ -681,18 +703,28 @@ def update_jobs_and_send_logs(
             logger.debug("Exception while reading Job {}, does not exist.".format(job_name))
             logger.exception("Exception while reading Job {}, does not exist.".format(job_name))
             clean_submission = True
+            submission_failed = True
 
     except Exception as e:
         logger.debug("Exception while reading Job {}".format(e))
         logger.exception("Exception while reading Job {}".format(e))
         clean_submission = True
+        submission_failed = True
 
     logger.info("Submission: {} :: clean_submission, submission_failed. {}, {}".format(submission_pk, clean_submission, submission_failed))
 
     if clean_submission:
         logger.info("cleanup_submission :: deleting job")
         cleanup_submission_job_delete(
-            api_instance, evalai, job_name, submission_pk, challenge_pk, phase_pk, submission_error, code_upload_environment_error, submission_failed
+            api_instance,
+            evalai,
+            job_name,
+            submission_pk,
+            challenge_pk,
+            phase_pk,
+            submission_error,
+            "",
+            submission_failed,
         )
         logger.info("cleanup_submission :: deleting SQS message, {}".format(message))
         cleanup_submission_sqs_message_delete(submission_pk, message, queue_object)
@@ -893,7 +925,10 @@ def main():
                     job_name = submission.get("job_name")[-1]
                     pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
                     if pods_list and pods_list.items[0].status.container_statuses:
-                        logger.debug("pods_list.items[0].status.container_statuses", pods_list.items[0].status.container_statuses)
+                        logger.debug(
+                            "pods_list.items[0].status.container_statuses",
+                            pods_list.items[0].status.container_statuses,
+                        )
                         # Update submission to running
                         submission_data = {
                             "submission_status": "running",
