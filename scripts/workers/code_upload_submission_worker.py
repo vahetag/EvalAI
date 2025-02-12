@@ -37,7 +37,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 logger.propagate = False
 
-NODEGROUP = "Submission-workers-GPU-L4-staging"
+NODEGROUP = "Submission-workers-GPU-L4"
 
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "auth_token")
 EVALAI_API_SERVER = os.environ.get("EVALAI_API_SERVER", "http://localhost:8000")
