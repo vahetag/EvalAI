@@ -79,9 +79,7 @@ def get_or_create_sqs_queue(queue_name="evalai_submission_queue", challenge=None
     except botocore.exceptions.ClientError as ex:
         if ex.response["Error"]["Code"] != "AWS.SimpleQueueService.NonExistentQueue":
             logger.exception("Cannot get queue: {}".format(queue_name))
-        sqs_retention_period = (
-            os.getenv("SQS_RETENTION_PERIOD", "345600") if challenge is None else str(challenge.get("sqs_retention_period"))
-        )
+        sqs_retention_period = os.getenv("SQS_RETENTION_PERIOD", "345600") if challenge is None else str(challenge.get("sqs_retention_period"))
         queue = sqs.create_queue(
             QueueName=queue_name,
             Attributes={"MessageRetentionPeriod": sqs_retention_period},
@@ -199,11 +197,7 @@ def get_init_container(submission_pk):
     init_container = client.V1Container(
         name="init-container",
         image=UBUNTU_IMAGE,
-        command=[
-            "/bin/bash",
-            "-c",
-            "apt update && apt install -y curl && {}".format(curl_request),
-        ],
+        command=["/bin/bash", "-c", "{}".format(curl_request)],
     )
     return init_container
 
@@ -317,11 +311,7 @@ def create_static_code_upload_submission_job_object(message, challenge):
     sidecar_container = client.V1Container(
         name="sidecar-container",
         image=UBUNTU_IMAGE,
-        command=[
-            "/bin/sh",
-            "-c",
-            "apt update && apt install -y curl && sh /evalai_scripts/monitor_submission.sh",
-        ],
+        command=["/bin/sh", "-c", "sh /evalai_scripts/monitor_submission.sh"],
         env=[
             SUBMISSION_PATH_ENV,
             CHALLENGE_PK_ENV,
@@ -656,17 +646,11 @@ def update_jobs_and_send_logs(
                                 )
 
                                 if reason == "Completed" and exit_code == 0:
-                                    logger.info(
-                                        "Submission: {} :: Container {} executed successfully.".format(submission_pk, container_name)
-                                    )
+                                    logger.info("Submission: {} :: Container {} executed successfully.".format(submission_pk, container_name))
                                     clean_submission = True
                                     submission_failed = False
                                 else:
-                                    logger.info(
-                                        "Submission: {} :: Container {} failed with reason: {}".format(
-                                            submission_pk, container_name, reason
-                                        )
-                                    )
+                                    logger.info("Submission: {} :: Container {} failed with reason: {}".format(submission_pk, container_name, reason))
                                     clean_submission = True  # Or handle failure logic here
                                     submission_failed = True
 
@@ -925,9 +909,7 @@ def main():
                     job_name = submission.get("job_name")[-1]
                     pods_list = get_pods_from_job(api_instance, core_v1_api_instance, job_name)
                     if pods_list and pods_list.items[0].status.container_statuses:
-                        logger.debug(
-                            "pods_list.items[0].status.container_statuses: {}".format(pods_list.items[0].status.container_statuses)
-                        )
+                        logger.debug("pods_list.items[0].status.container_statuses: {}".format(pods_list.items[0].status.container_statuses))
                         # Update submission to running
                         submission_data = {
                             "submission_status": "running",

@@ -48,7 +48,7 @@ spec:
     
     # Allow egress to specific FQDNs
     - toFQDNs:
-        - matchPattern: "*.ubuntu.com"
+        # - matchPattern: "*.ubuntu.com"
         - matchName: "bpc.opencv.org"
         - matchName: "bpcstaging.opencv.org"
     
