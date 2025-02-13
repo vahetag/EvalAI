@@ -877,6 +877,8 @@ def get_remaining_submissions(request, challenge_pk):
         ).order_by("pk")
     phase_data_list = list()
     for phase in challenge_phases:
+        if phase.codename == "robot":
+            continue
         (
             remaining_submission_message,
             response_status,

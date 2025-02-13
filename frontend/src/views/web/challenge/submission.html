@@ -38,48 +38,74 @@
 <div ng-if="challenge.eligible_to_submit">
 <!-- If challenge is docker based -->
 <section class="ev-sm-container ev-view challenge-container phase-container" ng-if="challenge.page.is_docker_based">
-    <div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view margin-btm-0">
-        <div class="row margin-bottom-cancel">
-            <div class="col s12">
-                <h5 class="w-300">
-                    Submission instructions for docker based challenges
-                </h5>
-                <ol class="fs-16 w-300">
-                    <li>Install evalai-cli<br>
-                        <code>$ pip install evalai{{challenge.cliVersion}}</code>
-                        <button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn"
-                            ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
-                            data-clipboard-text='pip install "evalai{{challenge.cliVersion}}"'>
-                            <i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
-                        </button>
-                    </li>
-                    <li>Add your EvalAI account token to evalai-cli<br>
-                        <code>$ evalai set_token {{challenge.refreshJWT}}</code>
-                        <button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn"
-                            ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
-                            data-clipboard-text="evalai set_token {{challenge.refreshJWT}}">
-                            <i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
-                        </button>
-                    </li>
-                    <li>Push docker image to EvalAI docker registry<br>
-                        <code>$ evalai push &lt;image&gt;:&lt;tag&gt; --phase &lt;phase_name&gt;</code>
-                        <button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn"
-                            ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
-                            data-clipboard-text="evalai push <image>:<tag> --phase <phase_name>">
-                            <i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
-                        </button>
-                    </li>
-                    <li>Use <code>--private</code> or <code>--public</code> flag in the submission command to make the submission private or public respectively.<br>
-                    </li>
-                    <li>For more commands, please refer to <a class="highlight-link"
-                            href="https://cli.eval.ai/" target="_blank">evalai-cli documentation.</a>
-                    </li>
-                </ol>
-            </div>
-        </div>
-    </div>
+	<div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view margin-btm-0">
+	<div class="row margin-bottom-cancel">
+		<div class="col s12">
+			<h5 class="w-300">
+				Submission instructions for docker based challenges
+			</h5>
+			<ol class="fs-16 w-300">
+				<li>Create a new environment with <strong>Python 3.9.*</strong> (preferably using conda).</li>
+				<li class="instruction-items">
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;">
+						Activate your new environment and install evalai-cli from PyPI:
+						<code>$ pip install evalai{{challenge.cliVersion}}</code>
+						<button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn" style="margin-top: 0px;!important"
+							ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
+							data-clipboard-text='pip install evalai'>
+						<i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
+						</button>
+					</div>
+				</li>
+				<li>
+					Add your competition account token to evalai-cli<br>
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;">
+						<code>$ evalai set_token {{challenge.refreshJWT}}</code>
+						<button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn" style="margin-top: 0px;!important"
+							ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
+							data-clipboard-text="evalai set_token {{challenge.refreshJWT}}">
+						<i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
+						</button>
+					</div>
+				</li>
+				<li class="instruction-items">
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;"><strong>To proceed to submission</strong> set the <strong>AWS_REGION_NAME</strong> environment variable.<br></div>
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;"><strong>On Windows (temporary):</strong><code>$ set AWS_REGION_NAME=us-west-2</code>
+						<button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn" style="margin-top: 0px;!important"
+							ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
+							data-clipboard-text="set AWS_REGION_NAME=us-west-2">
+						<i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
+						</button>
+						<br>
+					</div>
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;"><strong>On Windows (permanent):</strong><code>$ setx AWS_REGION_NAME "us-west-2"</code><br><button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn" style="margin-top: 0px;!important"
+						ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
+						data-clipboard-text='setx AWS_REGION_NAME "us-west-2"'>
+						<i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
+						</button>
+					</div>
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;"><strong>On Linux/Mac (temporary):</strong><code>$ export AWS_REGION_NAME=us-west-2</code><br><button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn" style="margin-top: 0px;!important"
+						ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
+						data-clipboard-text="export AWS_REGION_NAME=us-west-2">
+						<i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
+						</button>
+					</div>
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;"><strong>On Linux/Mac (permanent):</strong> Add the above export command to your <strong>~/.bashrc</strong> or <strong>~/.zshrc</strong>file.<br></div>
+				</li>
+				</li>
+				<li>
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;">
+						Push docker image to EvalAI docker registry:<code>$ evalai push &lt;image&gt;:&lt;tag&gt; --phase &lt;phase-slug&gt;</code>. Refer the phase submission commands mentioned below.
+				</li>
+				<!-- <li>Use <code>--private</code> or <code>--public</code> flag in the submission command to make the submission private or public respectively.<br> </li> -->
+				<li>For more commands, please refer to <a class="highlight-link"
+					href="https://cli.eval.ai/" target="_blank">evalai-cli documentation.</a>
+				</li>
+			</ol>
+			</div>
+		</div>
+	</div>
 </section>
-
 <!-- If challenge is docker based -->
 <section class="ev-sm-container ev-view challenge-container phase-container" ng-if="challenge.page.is_docker_based">
     <div class="ev-md-container ev-card-panel ev-z-depth-5 ev-challenge-view">
@@ -149,14 +175,14 @@
                                     </button>
                                 </div>
                                 <br/>
-                                <div>
-                                    <code>$ evalai push &lt;image&gt;:&lt;tag&gt; --phase {{key.slug}} --private</code>
+                                <!--<div>
+                                     <code>$ evalai push &lt;image&gt;:&lt;tag&gt; --phase {{key.slug}} --private</code> >
                                     <button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn"
                                         ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
                                         data-clipboard-text="evalai push <image>:<tag> --phase {{key.slug}} --private">
                                         <i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
                                     </button>
-                                </div>
+                                </div>-->
                             </td>
                         </tr>
 
@@ -414,6 +440,7 @@
                             <span class="fs-16 w-300">
                                 {{challenge.remainingSubmissions.remaining_submissions_today_count}}
                             </span>
+                        </span>
                     </div>
                     <div class="row">
                         <div class="row">
