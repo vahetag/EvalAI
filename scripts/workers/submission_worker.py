@@ -798,12 +798,16 @@ def main():
                     message.delete()
                     # increment_and_push_metrics_to_statsd(queue_name, is_remote)
             else:
-                current_running_submissions_count = Submission.objects.filter(
-                    challenge_phase__challenge=challenge.id, status="running"
-                ).count()
-                if current_running_submissions_count == maximum_concurrent_submissions:
-                    pass
-                else:
+                # current_running_submissions_count = Submission.objects.filter(
+                #     challenge_phase__challenge=challenge.id, status="running"
+                # ).count()
+                # if current_running_submissions_count == maximum_concurrent_submissions:
+                #     pass
+                # else:
+                #     logger.info("{} Processing message body: {}".format(WORKER_LOGS_PREFIX, message.body))
+                #     process_submission_callback(message.body)
+                #     # Let the queue know that the message is processed
+                #     message.delete()
                     logger.info("{} Processing message body: {}".format(WORKER_LOGS_PREFIX, message.body))
                     process_submission_callback(message.body)
                     # Let the queue know that the message is processed
