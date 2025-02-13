@@ -4,7 +4,7 @@
 #   ./submssion_worker_runner.sh start
 #   ./submssion_worker_runner.sh stop
 #   ./submssion_worker_runner.sh restart
-#   ./submssion_worker_runner.sh logs [number_of_lines]
+#   ./submssion_worker_runner.sh logs [number_of_lines | -f | -f -n number_of_lines]
 
 # Load environment variables
 set -a; . docker/prod_self/docker.env; set +a
@@ -95,14 +95,22 @@ stop_worker() {
 
 # Function to show the log tail
 show_logs() {
-    # Default to 100 lines if not provided
-    LINES=${1:-100}
-
     if [[ -f "${CURRENT_LOG_RECORD}" ]]; then
         LOG_FILE=$(cat "${CURRENT_LOG_RECORD}")
         if [[ -f "$LOG_FILE" ]]; then
-            echo "Showing last ${LINES} lines of log file: $LOG_FILE"
-            tail -n "$LINES" "$LOG_FILE"
+            if [[ "$1" == "-f" && "$2" == "-n" && "$3" =~ ^[0-9]+$ ]]; then
+                echo "Following log file: $LOG_FILE with last $3 lines"
+                tail -f -n "$3" "$LOG_FILE"
+            elif [[ "$1" == "-f" ]]; then
+                echo "Following log file: $LOG_FILE"
+                tail -f "$LOG_FILE"
+            elif [[ "$1" =~ ^[0-9]+$ ]]; then
+                echo "Showing last ${1} lines of log file: $LOG_FILE"
+                tail -n "$1" "$LOG_FILE"
+            else
+                echo "Showing last 100 lines of log file: $LOG_FILE"
+                tail -n 100 "$LOG_FILE"
+            fi
         else
             echo "Log file ($LOG_FILE) not found."
         fi
