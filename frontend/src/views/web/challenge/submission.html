@@ -57,6 +57,17 @@
 						</button>
 					</div>
 				</li>
+				<li class="instruction-items">
+					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;">
+						Set the competition host URL:
+						<code>$ evalai host -sh https://bpc.opencv.org</code>
+						<button class="btn ev-btn-dark waves-effect waves-dark grad-btn code-btn" style="margin-top: 0px;!important"
+							ng-click="challenge.showConfirmation('Command copied to clipboard')" ngclipboard
+							data-clipboard-text='evalai host -sh https://bpc.opencv.org'>
+						<i class="fa fa-clipboard" aria-hidden="true" alt="Copy to clipboard."></i>
+						</button>
+					</div>
+				</li>
 				<li>
 					Add your competition account token to evalai-cli<br>
 					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;">
@@ -92,6 +103,7 @@
 					</div>
 					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;"><strong>On Linux/Mac (permanent):</strong> Add the above export command to your <strong>~/.bashrc</strong> or <strong>~/.zshrc</strong>file.<br></div>
 				</li>
+                
 				</li>
 				<li>
 					<div style="display: flex; align-items: center;gap: 5px; margin-bottom: 5px;">
