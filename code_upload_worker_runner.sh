@@ -16,6 +16,7 @@ LOG_DIR="worker_logs"
 LOG_SUBDIR="code_upload_worker"
 LOG_FILE_PREFIX="v"
 CURRENT_LOG_RECORD="${LOG_DIR}/${LOG_SUBDIR}/current_log_file_name.txt"
+RUN_COMMAND="python3.9 $PYTHON_SCRIPT"
 
 # Check for required commands
 check_dependencies() {
@@ -29,7 +30,7 @@ check_dependencies() {
 
 # Function to check if the worker is already running
 is_worker_running() {
-    pgrep -f "python3.9 $PYTHON_SCRIPT" &>/dev/null
+    pgrep -f "$RUN_COMMAND" &>/dev/null
 }
 
 # Function to start the worker
@@ -77,15 +78,18 @@ start_worker() {
     python3.9 -m pip install -U -r requirements/code_upload_worker.txt >> "$LOG_FILE" 2>&1
 
     # Start the worker in the background using nohup
-    nohup python3.9 "$PYTHON_SCRIPT" >> "$LOG_FILE" 2>&1 &
+    nohup $RUN_COMMAND >> "$LOG_FILE" 2>&1 &
     echo "code-upload-worker started in background. Log file: $LOG_FILE"
 }
 
 # Function to stop the worker
 stop_worker() {
     echo "Stopping code-upload-worker..."
-    pkill -f "python3.9 $PYTHON_SCRIPT" 2>/dev/null
-    sleep 20
+
+    while pid=$(pgrep -f "$RUN_COMMAND"); [ -n "$pid" ]; do
+        kill 15 "$pid" 2>/dev/null
+        sleep 20
+    done
     echo "code-upload-worker stopped (if it was running)."
 }
 
@@ -125,7 +129,9 @@ case "$1" in
         start_worker
         ;;
     stop)
-        stop_worker
+        if is_worker_running; then
+            stop_worker
+        fi
         ;;
     restart)
         if is_worker_running; then

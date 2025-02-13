@@ -15,7 +15,7 @@ LOG_DIR="worker_logs"
 LOG_SUBDIR="submission_worker"
 LOG_FILE_PREFIX="v"
 CURRENT_LOG_RECORD="${LOG_DIR}/${LOG_SUBDIR}/current_log_file_name.txt"
-
+RUN_COMMAND="python3.9 -m $PYTHON_MODULE"
 
 # Check for required commands
 check_dependencies() {
@@ -30,7 +30,7 @@ check_dependencies() {
 
 # Function to check if the worker is already running
 is_worker_running() {
-    pgrep -f "python3.9 -m $PYTHON_MODULE" &>/dev/null
+    pgrep -f "$RUN_COMMAND" &>/dev/null
 }
 
 # Function to start the worker
@@ -78,15 +78,18 @@ start_worker() {
     python3.9 -m pip install -U -r requirements/prod_2.txt -r requirements/worker_2.txt >> "$LOG_FILE" 2>&1
 
     # Start the worker in the background using nohup
-    nohup python3.9 -m $PYTHON_MODULE >> "$LOG_FILE" 2>&1 &
+    nohup $RUN_COMMAND >> "$LOG_FILE" 2>&1 &
     echo "submission-worker started in background. Log file: $LOG_FILE"
 }
 
 # Function to stop the worker
 stop_worker() {
     echo "Stopping submission-worker..."
-    pkill -f "python3.9 -m $PYTHON_MODULE" 2>/dev/null
-    sleep 20
+
+    while pid=$(pgrep -f "$RUN_COMMAND"); [ -n "$pid" ]; do
+        kill 15 "$pid" 2>/dev/null
+        sleep 20
+    done
     echo "submission-worker stopped (if it was running)."
 }
 
@@ -126,7 +129,9 @@ case "$1" in
         start_worker
         ;;
     stop)
-        stop_worker
+        if is_worker_running; then
+            stop_worker
+        fi
         ;;
     restart)
         if is_worker_running; then
