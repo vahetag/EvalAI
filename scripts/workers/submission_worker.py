@@ -405,9 +405,9 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
     )
     submission_data_dir = SUBMISSION_DATA_DIR.format(submission_id=submission.id)
 
-    submission.status = Submission.RUNNING
-    submission.started_at = timezone.now()
-    submission.save()
+    # submission.status = Submission.RUNNING
+    # submission.started_at = timezone.now()
+    # submission.save()
 
     # create a temporary run directory under submission directory, so that
     # main directory does not gets polluted
