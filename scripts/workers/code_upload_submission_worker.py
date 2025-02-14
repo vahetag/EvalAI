@@ -41,7 +41,8 @@ NODEGROUP = "Submission-workers-GPU-L4"
 
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "auth_token")
 EVALAI_API_SERVER = os.environ.get("EVALAI_API_SERVER", "http://localhost:8000")
-QUEUE_NAME = os.environ.get("QUEUE_NAME", "evalai_submission_queue")
+QUEUE_NAME = os.environ.get("CHALLENGE_CLUSTER_QUEUE", "staging_bpc_comp_2025_cluster_submission_queue")
+CHALLENGE_TITLE = os.environ.get("CHALLENGE_TITLE", "Perception Challenge for Bin-Picking")
 script_config_map_name = "evalai-scripts-cm"
 
 UBUNTU_IMAGE = "345594572510.dkr.ecr.us-west-2.amazonaws.com/ibpc:ubuntu"
@@ -780,8 +781,9 @@ def main():
         AUTH_TOKEN=AUTH_TOKEN,
         EVALAI_API_SERVER=EVALAI_API_SERVER,
         QUEUE_NAME=QUEUE_NAME,
+        CHALLENGE_TITLE=CHALLENGE_TITLE,
     )
-    challenge = evalai.get_challenge_by_queue_name()
+    challenge = evalai.get_challenge_by_title()
     queue, queue_name = get_or_create_sqs_queue(QUEUE_NAME, challenge=challenge)
 
     logger.info("Deploying Worker for {}".format(queue_name))

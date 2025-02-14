@@ -39,6 +39,7 @@ handler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+logger.propagate = False
 
 django.setup()
 
@@ -524,9 +525,7 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
                         dataset_split__codename=split_code_name,
                     )
                 except Exception:
-                    stderr.write(
-                        "ORGINIAL EXCEPTION: No such relation between Challenge Phase and DatasetSplit specified by Challenge Host \n"
-                    )
+                    stderr.write("ORGINIAL EXCEPTION: No such relation between Challenge Phase and DatasetSplit specified by Challenge Host \n")
                     stderr.write(traceback.format_exc())
                     successful_submission_flag = False
                     break
@@ -535,9 +534,7 @@ def run_submission(challenge_id, challenge_phase, submission, user_annotation_fi
                 try:
                     dataset_split = challenge_phase_split.dataset_split
                 except Exception:
-                    stderr.write(
-                        "ORGINIAL EXCEPTION: The codename specified by your Challenge Host doesn't match with that in the evaluation Script.\n"
-                    )
+                    stderr.write("ORGINIAL EXCEPTION: The codename specified by your Challenge Host doesn't match with that in the evaluation Script.\n")
                     stderr.write(traceback.format_exc())
                     successful_submission_flag = False
                     break
@@ -748,9 +745,7 @@ def main():
     if settings.DEBUG or settings.TEST:
         if eval(LIMIT_CONCURRENT_SUBMISSION_PROCESSING):
             if not challenge_pk:
-                logger.exception(
-                    "{} Please add CHALLENGE_PK for the challenge to be loaded in the docker.env file.".format(WORKER_LOGS_PREFIX)
-                )
+                logger.exception("{} Please add CHALLENGE_PK for the challenge to be loaded in the docker.env file.".format(WORKER_LOGS_PREFIX))
                 sys.exit(1)
             (
                 maximum_concurrent_submissions,
@@ -774,7 +769,7 @@ def main():
     is_remote = int(challenge.remote_evaluation)
     while True:
         for message in queue.receive_messages():
-            logger.info("message body: {}".format(json.loads(message.body)))
+            # logger.info("message body: {}".format(json.loads(message.body)))
             if json.loads(message.body).get("is_static_dataset_code_upload_submission"):
                 continue
             if settings.DEBUG or settings.TEST:
@@ -808,11 +803,11 @@ def main():
                 #     process_submission_callback(message.body)
                 #     # Let the queue know that the message is processed
                 #     message.delete()
-                    logger.info("{} Processing message body: {}".format(WORKER_LOGS_PREFIX, message.body))
-                    process_submission_callback(message.body)
-                    # Let the queue know that the message is processed
-                    message.delete()
-                    # increment_and_push_metrics_to_statsd(queue_name, is_remote)
+                logger.info("{} Processing message body: {}".format(WORKER_LOGS_PREFIX, message.body))
+                process_submission_callback(message.body)
+                # Let the queue know that the message is processed
+                message.delete()
+                # increment_and_push_metrics_to_statsd(queue_name, is_remote)
         if killer.kill_now:
             break
         time.sleep(10)

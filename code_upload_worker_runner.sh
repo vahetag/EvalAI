@@ -87,7 +87,7 @@ stop_worker() {
     echo "Stopping code-upload-worker..."
 
     while pid=$(pgrep -f "$RUN_COMMAND"); [ -n "$pid" ]; do
-        kill 15 "$pid" 2>/dev/null
+        kill -15 "$pid" 2>/dev/null
         sleep 20
     done
     echo "code-upload-worker stopped (if it was running)."
