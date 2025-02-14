@@ -89,13 +89,16 @@ def publish_submission_message(message):
     try:
         challenge = Challenge.objects.get(pk=message["challenge_pk"])
     except Challenge.DoesNotExist:
-        logger.exception(
-            "Challenge does not exist for the given id {}".format(
-                message["challenge_pk"]
-            )
-        )
+        logger.exception("Challenge does not exist for the given id {}".format(message["challenge_pk"]))
         return
-    queue_name = challenge.queue
+    # queue_name = challenge.queue
+
+    if "is_static_dataset_code_upload_submission" in message:
+        if message["is_static_dataset_code_upload_submission"]:
+            queue_name = settings.CHALLENGE_CLUSTER_QUEUE
+        else:
+            queue_name = settings.CHALLENGE_QUEUE
+
     slack_url = challenge.slack_webhook_url
     is_remote = challenge.remote_evaluation
     queue = get_or_create_sqs_queue(queue_name, challenge)
@@ -113,9 +116,7 @@ def publish_submission_message(message):
         participant_team_name = submission.participant_team.team_name
         phase_name = submission.challenge_phase.name
         message = {
-            "text": "A *new submission* has been uploaded to {}".format(
-                challenge_name
-            ),
+            "text": "A *new submission* has been uploaded to {}".format(challenge_name),
             "fields": [
                 {
                     "title": "Challenge Phase",

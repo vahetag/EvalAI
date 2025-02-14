@@ -20,7 +20,7 @@ DEBUG = False
 CORS_ORIGIN_ALLOW_ALL = False
 IS_STAGING_FLAG = os.environ.get("IS_STAGING", True)
 
-IS_STAGING = True if IS_STAGING_FLAG == "True" else False 
+IS_STAGING = True if IS_STAGING_FLAG == "True" else False
 
 if not IS_STAGING:
     ALLOWED_HOSTS = ["bpc.opencv.org", "35.85.190.203"]
@@ -41,7 +41,7 @@ else:
         # "http://127.0.0.1:8000",  # Django development server (IPv4)
         # "http://django:8000",  # Django development server (IPv4)
     )
-    
+
 
 DATABASES = {
     "default": {
@@ -69,10 +69,10 @@ print("RDS_PORT", DATABASES["default"]["PORT"])
 
 INSTALLED_APPS += ("storages",)  # noqa
 
-USE_S3_FOR_DJANGO_STATIC_AND_MEDIA = os.getenv('USE_S3_FOR_DJANGO_STATIC_AND_MEDIA') == 'True'
+USE_S3_FOR_DJANGO_STATIC_AND_MEDIA = os.getenv("USE_S3_FOR_DJANGO_STATIC_AND_MEDIA") == "True"
 
 if USE_S3_FOR_DJANGO_STATIC_AND_MEDIA:
-    ##################### For via AWS S3 
+    ##################### For via AWS S3
     # Amazon S3 Configurations
     AWS_S3_CUSTOM_DOMAIN = "%s.s3-%s.amazonaws.com" % (AWS_STORAGE_BUCKET_NAME, AWS_DEFAULT_REGION)
 
@@ -100,18 +100,17 @@ if USE_S3_FOR_DJANGO_STATIC_AND_MEDIA:
     print("STATIC_URL", STATIC_URL)
     print("MEDIA_URL", MEDIA_URL)
 else:
-    ##################### For local serving of staticfiles and media 
+    ##################### For local serving of staticfiles and media
     STATIC_URL = "/api/static/"
     MEDIA_URL = "/api/media/"
 
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Ensure this line is present
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Optional: Define MEDIA_ROOT if you handle media files
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # Ensure this line is present
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Optional: Define MEDIA_ROOT if you handle media files
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+
     print(f"BASE_DIR: {BASE_DIR}")
     print(f"STATIC_ROOT: {STATIC_ROOT}")
     print(f"MEDIA_ROOT: {MEDIA_ROOT}")
-
 
 
 # E-Mail Settings
@@ -146,3 +145,6 @@ warnings.filterwarnings(
 )
 
 print("CELERY_QUEUE_NAME", os.environ.get("CELERY_QUEUE_NAME", None))
+
+CHALLENGE_CLUSTER_QUEUE = os.environ.get("CHALLENGE_CLUSTER_QUEUE", "challenge_cluster_queue")
+CHALLENGE_QUEUE = os.environ.get("CHALLENGE_QUEUE", "challenge_evaluation_queue")
