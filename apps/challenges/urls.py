@@ -162,6 +162,11 @@ urlpatterns = [
         name="get_challenge_by_queue_name",
     ),
     url(
+        r"^challenge/by-title/$",
+        views.get_challenge_by_title,
+        name="get_challenge_by_title",
+    ),
+    url(
         r"^(?P<challenge_pk>[0-9]+)/phases/$",
         views.get_challenge_phases_by_challenge_pk,
         name="get_challenge_phases_by_challenge_pk",
@@ -241,9 +246,7 @@ urlpatterns = [
         views.finish_annotation_file_upload,
         name="finish_annotation_file_upload",
     ),
-    url(
-        r"^pwc_task_dataset/$", views.pwc_task_dataset, name="pwc_task_dataset"
-    ),
+    url(r"^pwc_task_dataset/$", views.pwc_task_dataset, name="pwc_task_dataset"),
     url(
         r"^challenges/(?P<challenge_pk>[0-9]+)/phases/(?P<phase_pk>[0-9]+)/allowed_email_ids/$",
         views.update_allowed_email_ids,
@@ -313,7 +316,7 @@ urlpatterns = [
         r"^challenge/modify_leaderboard_data/$",
         views.modify_leaderboard_data,
         name="modify_leaderboard_data",
-    )
+    ),
 ]
 
 app_name = "challenges"
